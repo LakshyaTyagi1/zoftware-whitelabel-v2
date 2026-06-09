@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  X, User, Building2, Mail, Phone, CheckCircle, Clock, Package,
+  X, Mail, Phone, Clock, Package,
   FileText, BarChart2, MessageSquare, ShoppingCart, ArrowRight,
-  Shield, Download, Zap, ExternalLink, ChevronDown, Edit2,
-  Bell, Ticket, ChevronRight, Star, Trash2
+  Shield, Download, ChevronDown,
+  Bell, Ticket, ChevronRight, Trash2, LogOut, User
 } from 'lucide-react';
 
 // ── Mock data ──────────────────────────────────────────────────────────────
@@ -152,7 +152,7 @@ const mockChats = [
 
 // ── Types & helpers ────────────────────────────────────────────────────────
 
-type Tab = 'overview' | 'purchases' | 'cart' | 'reports' | 'support';
+type Tab = 'purchases' | 'cart' | 'reports' | 'support';
 
 function StatusBadge({ status }: { status: string }) {
   const cfg: Record<string, string> = {
@@ -173,7 +173,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>('overview');
+  const [tab, setTab] = useState<Tab>('purchases');
   const [expandCompany, setExpandCompany] = useState(false);
   const [expandedHolders, setExpandedHolders] = useState<string[]>([]);
   const [cartItems, setCartItems] = useState(mockCart);
@@ -184,11 +184,16 @@ export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
   const removeFromCart = (id: string) =>
     setCartItems(prev => prev.filter(item => item.id !== id));
 
+  const handleLogout = () => {
+    if (typeof window !== 'undefined') localStorage.removeItem('dc_v2_auth');
+    onClose();
+    router.push('/dubai-chamber');
+  };
+
   const openTickets = mockTickets.filter(t => t.status === 'Open').length;
   const cartTotal = cartItems.reduce((s, i) => s + i.price, 0);
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
-    { id: 'overview',  label: 'Overview',   icon: <User size={14} strokeWidth={1.6} /> },
     { id: 'purchases', label: 'Purchases',  icon: <Package size={14} strokeWidth={1.6} />, badge: mockPurchases.length },
     { id: 'cart',      label: 'Cart',       icon: <ShoppingCart size={14} strokeWidth={1.6} />, badge: cartItems.length },
     { id: 'reports',   label: 'Reports',    icon: <FileText size={14} strokeWidth={1.6} />, badge: mockRfpReports.length + mockStrategyReports.length },
@@ -224,6 +229,11 @@ export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
             <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#f5f5f7] text-[#86868b] hover:text-black transition-colors relative">
               <Bell size={14} />
               {openTickets > 0 && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#ea580c]" />}
+            </button>
+            <button onClick={handleLogout}
+              title="Sign out"
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 text-[#86868b] hover:text-red-500 transition-colors">
+              <LogOut size={14} />
             </button>
             <button onClick={onClose}
               className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#f5f5f7] text-[#86868b] hover:text-black transition-colors">
@@ -271,45 +281,59 @@ export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
                   )}
                 </button>
               ))}
+
+              {/* Sign out */}
+              <button onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-left text-[13px] font-medium text-[#86868b] hover:bg-red-50 hover:text-red-500 transition-colors mt-1">
+                <LogOut size={14} className="shrink-0" />
+                Sign out
+              </button>
             </nav>
 
             {/* ── CSM card — always visible at bottom ── */}
-            <div className="shrink-0 border-t border-black/8 p-4 bg-white">
-              <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#86868b] mb-3">Your Success Manager</p>
-              <div className="flex items-center gap-2.5 mb-3">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #0051D5, #003CA6)' }}>
-                  {mockContact.avatar}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[12px] font-semibold text-black leading-tight truncate">{mockContact.name}</p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse shrink-0" />
-                    <p className="text-[10px] text-[#16a34a] font-medium">Online now</p>
+            <div className="shrink-0 border-t border-black/8 overflow-hidden"
+              style={{ background: 'linear-gradient(160deg, #0051D5 0%, #003CA6 100%)' }}>
+              <div className="p-4">
+                <p className="text-[9px] font-bold uppercase tracking-[0.1em] mb-3" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                  Your Success Manager
+                </p>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0"
+                    style={{ background: 'rgba(255,255,255,0.2)' }}>
+                    {mockContact.avatar}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-semibold text-white leading-tight truncate">{mockContact.name}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-pulse shrink-0" />
+                      <p className="text-[10px] font-medium" style={{ color: '#4ade80' }}>Online now</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="space-y-1.5 mb-3">
-                {[
-                  { icon: <Mail size={10} />, v: mockContact.email },
-                  { icon: <Phone size={10} />, v: mockContact.phone },
-                  { icon: <Clock size={10} />, v: mockContact.availability },
-                ].map(({ icon, v }) => (
-                  <div key={v} className="flex items-center gap-2 text-[10px] text-[#555]">
-                    <span className="text-[#86868b] shrink-0">{icon}</span>
-                    <span className="truncate">{v}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex gap-1.5">
-                <a href={`mailto:${mockContact.email}`}
-                  className="flex-1 flex items-center justify-center gap-1 py-1.5 text-[10px] font-semibold bg-[#007AFF] text-white rounded-sm hover:bg-[#0051D5] transition-colors">
-                  <Mail size={10} /> Email
-                </a>
-                <a href={`https://wa.me/${mockContact.whatsapp}`} target="_blank" rel="noopener noreferrer"
-                  className="flex-1 flex items-center justify-center gap-1 py-1.5 text-[10px] font-semibold border border-black/10 text-black rounded-sm hover:bg-[#f5f5f7] transition-colors">
-                  <MessageSquare size={10} /> WhatsApp
-                </a>
+                <div className="space-y-1.5 mb-3.5">
+                  {[
+                    { icon: <Mail size={10} />, v: mockContact.email },
+                    { icon: <Phone size={10} />, v: mockContact.phone },
+                    { icon: <Clock size={10} />, v: mockContact.availability },
+                  ].map(({ icon, v }) => (
+                    <div key={v} className="flex items-center gap-2 text-[11px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                      <span style={{ color: 'rgba(255,255,255,0.55)' }} className="shrink-0">{icon}</span>
+                      <span className="truncate">{v}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <a href={`mailto:${mockContact.email}`}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold rounded-sm transition-colors"
+                    style={{ background: '#fff', color: '#0051D5' }}>
+                    <Mail size={11} /> Email
+                  </a>
+                  <a href={`https://wa.me/${mockContact.whatsapp}`} target="_blank" rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold rounded-sm transition-colors"
+                    style={{ background: '#25D366', color: '#fff' }}>
+                    <MessageSquare size={11} /> WhatsApp
+                  </a>
+                </div>
               </div>
             </div>
           </aside>
@@ -337,14 +361,12 @@ export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
             {/* Page header */}
             <div className="border-b border-black/8 px-6 lg:px-10 py-5">
               <h1 className="text-[22px] font-semibold text-black tracking-tight">
-                {tab === 'overview' && 'Profile & Account'}
                 {tab === 'purchases' && 'Purchases & Subscriptions'}
                 {tab === 'cart' && 'My Cart'}
                 {tab === 'reports' && 'Saved Reports'}
                 {tab === 'support' && 'Support & Help'}
               </h1>
               <p className="text-[13px] text-[#86868b] mt-1">
-                {tab === 'overview' && 'Your personal and company information'}
                 {tab === 'purchases' && `${mockPurchases.length} active subscriptions · $1,520/mo`}
                 {tab === 'cart' && `${cartItems.length} item${cartItems.length !== 1 ? 's' : ''} · $${cartTotal}/mo estimated`}
                 {tab === 'reports' && `${mockRfpReports.length + mockStrategyReports.length} reports generated`}
@@ -352,127 +374,10 @@ export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
               </p>
             </div>
 
-            <div className="px-6 lg:px-10 py-6 max-w-[860px]">
-
-              {/* ─── OVERVIEW ─── */}
-              {tab === 'overview' && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                  {/* Profile card */}
-                  <div className="border border-black/8 rounded-sm overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3 bg-[#f9fafb] border-b border-black/8">
-                      <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.07em]">Profile</span>
-                      <button className="flex items-center gap-1 text-[11px] text-[#007AFF] hover:text-[#0051D5] transition-colors">
-                        <Edit2 size={10} /> Edit
-                      </button>
-                    </div>
-                    <div className="p-5 space-y-3.5">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-[18px] font-bold shrink-0"
-                          style={{ background: 'linear-gradient(135deg, #007AFF, #0051D5)' }}>
-                          {mockUser.avatar}
-                        </div>
-                        <div>
-                          <p className="text-[16px] font-semibold text-black">{mockUser.firstName} {mockUser.lastName}</p>
-                          <p className="text-[12px] text-[#86868b]">{mockUser.role}</p>
-                        </div>
-                      </div>
-                      {[
-                        { icon: <Mail size={13} />, label: 'Email', value: mockUser.email },
-                        { icon: <Phone size={13} />, label: 'Phone', value: mockUser.phone },
-                        { icon: <Shield size={13} />, label: 'Member since', value: mockUser.memberSince },
-                      ].map(({ icon, label, value }) => (
-                        <div key={label} className="flex items-center gap-3">
-                          <span className="text-[#86868b] shrink-0">{icon}</span>
-                          <span className="text-[11px] text-[#86868b] w-24 shrink-0">{label}</span>
-                          <span className="text-[13px] text-black font-medium truncate">{value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Company card */}
-                  <div className="border border-black/8 rounded-sm overflow-hidden">
-                    <button onClick={() => setExpandCompany(e => !e)}
-                      className="w-full flex items-center justify-between px-4 py-3 bg-[#f9fafb] border-b border-black/8 hover:bg-[#f0f0f0] transition-colors">
-                      <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.07em]">Company Details</span>
-                      <ChevronDown size={13} className={`text-[#86868b] transition-transform ${expandCompany ? 'rotate-180' : ''}`} />
-                    </button>
-                    <div className="p-5 space-y-3">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-10 h-10 rounded-sm bg-[#f5f5f7] border border-black/8 flex items-center justify-center shrink-0">
-                          <Building2 size={16} className="text-[#86868b]" />
-                        </div>
-                        <div>
-                          <p className="text-[14px] font-semibold text-black">{mockCompany.name}</p>
-                          <p className="text-[11px] text-[#86868b]">{mockCompany.industry} · {mockCompany.employees} employees</p>
-                        </div>
-                      </div>
-                      {expandCompany && (
-                        <>
-                          {[
-                            { icon: <Shield size={12} />, label: 'License No.', value: mockCompany.license },
-                            { icon: <Zap size={12} />, label: 'VAT / TRN', value: mockCompany.vatNumber },
-                            { icon: <ExternalLink size={12} />, label: 'Website', value: mockCompany.website },
-                            { icon: <Mail size={12} />, label: 'Address', value: mockCompany.address },
-                          ].map(({ icon, label, value }) => (
-                            <div key={label} className="flex items-start gap-3">
-                              <span className="text-[#86868b] shrink-0 mt-0.5">{icon}</span>
-                              <span className="text-[11px] text-[#86868b] w-20 shrink-0">{label}</span>
-                              <span className="text-[12px] text-black font-medium leading-snug">{value}</span>
-                            </div>
-                          ))}
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Quick stats across the bottom */}
-                  <div className="lg:col-span-2 grid grid-cols-3 gap-3">
-                    {[
-                      { v: mockPurchases.length.toString(), l: 'Active subscriptions', c: '#007AFF' },
-                      { v: '$1,520', l: 'Monthly spend', c: '#000' },
-                      { v: '$680', l: 'Saved vs list price', c: '#16a34a' },
-                    ].map(({ v, l, c }) => (
-                      <div key={l} className="border border-black/8 rounded-sm p-4 bg-[#f9fafb]">
-                        <p className="text-[22px] font-semibold" style={{ color: c }}>{v}</p>
-                        <p className="text-[11px] text-[#86868b] mt-0.5">{l}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Mobile CSM card */}
-                  <div className="lg:hidden lg:col-span-2 border border-black/8 rounded-sm overflow-hidden">
-                    <div className="px-4 py-3 bg-[#f9fafb] border-b border-black/8">
-                      <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.07em]">Your Customer Success Manager</span>
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0"
-                          style={{ background: 'linear-gradient(135deg, #0051D5, #003CA6)' }}>
-                          {mockContact.avatar}
-                        </div>
-                        <div>
-                          <p className="text-[13px] font-semibold text-black">{mockContact.name}</p>
-                          <p className="text-[11px] text-[#86868b]">{mockContact.title}</p>
-                        </div>
-                        <div className="ml-auto flex items-center gap-1 text-[9px] font-semibold text-[#16a34a] bg-[#dcfce7] px-2 py-0.5 rounded-full">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" /> Online
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <a href={`mailto:${mockContact.email}`}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold bg-[#007AFF] text-white rounded-sm hover:bg-[#0051D5] transition-colors">
-                          <Mail size={11} /> Email
-                        </a>
-                        <a href={`https://wa.me/${mockContact.whatsapp}`} target="_blank" rel="noopener noreferrer"
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold border border-black/10 text-black rounded-sm hover:bg-[#f5f5f7] transition-colors">
-                          <MessageSquare size={11} /> WhatsApp
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+            {/* Two-column content layout */}
+            <div className="px-6 lg:px-10 py-6">
+            <div className="flex gap-7 items-start">
+            <div className="flex-1 min-w-0">
 
               {/* ─── PURCHASES ─── */}
               {tab === 'purchases' && (
@@ -845,7 +750,80 @@ export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
                 </div>
               )}
 
-            </div>
+            </div>{/* end left col */}
+
+                {/* ── RIGHT PANEL: summary + CSM ── */}
+                <div className="hidden xl:flex flex-col w-[280px] shrink-0 gap-4 sticky top-0 self-start">
+
+                  {/* Account summary */}
+                  <div className="border border-black/8 rounded-sm overflow-hidden">
+                    <div className="px-4 py-3 bg-[#f9fafb] border-b border-black/8">
+                      <p className="text-[10px] font-bold text-[#86868b] uppercase tracking-[0.08em]">Account Summary</p>
+                    </div>
+                    <div className="divide-y divide-black/6">
+                      {[
+                        { v: mockPurchases.length.toString(), l: 'Active subscriptions', c: '#007AFF' },
+                        { v: '$1,520/mo', l: 'Monthly spend', c: '#000' },
+                        { v: '$680 saved', l: 'vs list price', c: '#16a34a' },
+                        { v: cartItems.length.toString(), l: 'Items in cart', c: '#000' },
+                      ].map(({ v, l, c }) => (
+                        <div key={l} className="flex items-center justify-between px-4 py-3">
+                          <span className="text-[12px] text-[#86868b]">{l}</span>
+                          <span className="text-[13px] font-bold" style={{ color: c }}>{v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* CSM card — prominent */}
+                  <div className="rounded-sm overflow-hidden"
+                    style={{ background: 'linear-gradient(160deg, #0051D5 0%, #003CA6 100%)' }}>
+                    <div className="p-5">
+                      <p className="text-[9px] font-bold uppercase tracking-[0.1em] mb-4"
+                        style={{ color: 'rgba(255,255,255,0.55)' }}>Your Success Manager</p>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-[14px] font-bold shrink-0"
+                          style={{ background: 'rgba(255,255,255,0.2)' }}>
+                          {mockContact.avatar}
+                        </div>
+                        <div>
+                          <p className="text-[15px] font-semibold text-white">{mockContact.name}</p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-pulse shrink-0" />
+                            <p className="text-[11px] font-medium" style={{ color: '#4ade80' }}>Online now</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2 mb-4">
+                        {[
+                          { icon: <Mail size={11} />, v: mockContact.email },
+                          { icon: <Phone size={11} />, v: mockContact.phone },
+                          { icon: <Clock size={11} />, v: mockContact.availability },
+                        ].map(({ icon, v }) => (
+                          <div key={v} className="flex items-center gap-2 text-[11px]"
+                            style={{ color: 'rgba(255,255,255,0.8)' }}>
+                            <span style={{ color: 'rgba(255,255,255,0.5)' }} className="shrink-0">{icon}</span>
+                            <span className="truncate">{v}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <a href={`mailto:${mockContact.email}`}
+                          className="flex items-center justify-center gap-2 py-2.5 text-[12px] font-semibold rounded-sm transition-colors"
+                          style={{ background: '#fff', color: '#0051D5' }}>
+                          <Mail size={12} /> Email Sana
+                        </a>
+                        <a href={`https://wa.me/${mockContact.whatsapp}`} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 py-2.5 text-[12px] font-semibold rounded-sm transition-colors"
+                          style={{ background: '#25D366', color: '#fff' }}>
+                          <MessageSquare size={12} /> WhatsApp
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>{/* end two-col flex */}
+            </div>{/* end px wrapper */}
           </main>
         </div>
       </div>
