@@ -10,8 +10,8 @@ import {
 } from 'lucide-react';
 
 // ─── Login credentials (update when real creds are provided) ─────────────────
-const AUTH_USER = 'admin';
-const AUTH_PASS = 'v2access';
+const AUTH_USER = 'digital@zoftwarehub.com';
+const AUTH_PASS = 'Zain@4590';
 const AUTH_KEY  = 'dc_v2_auth';
 
 // ─── Nav structure ────────────────────────────────────────────────────────────
@@ -123,7 +123,7 @@ const gatewayTools = [
     icon: <TrendingDown size={20} strokeWidth={1.5} />,
     label: 'Cost Optimizer',
     desc: 'Analyse your current software spend and uncover savings opportunities instantly.',
-    href: 'COST_OPTIMIZER_URL',
+    href: 'https://enterprise-level-redesign.vercel.app',
     color: '#16a34a',
     external: true,
   },
@@ -188,12 +188,12 @@ export default function DubaiChamberPage() {
 
           <form onSubmit={handleLogin} className="space-y-3.5">
             <label className="block">
-              <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#86868b] mb-1.5 block">Username</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#86868b] mb-1.5 block">Email</span>
               <input
-                type="text"
+                type="email"
                 value={loginUser}
                 onChange={e => { setLoginUser(e.target.value); setLoginErr(''); }}
-                placeholder="Enter username"
+                placeholder="Enter your email"
                 autoComplete="username"
                 className="w-full h-10 border border-black/10 rounded-sm px-3 text-[13px] text-black outline-none focus:border-[#007AFF]/40 focus:ring-2 focus:ring-[#007AFF]/10 bg-white"
               />
