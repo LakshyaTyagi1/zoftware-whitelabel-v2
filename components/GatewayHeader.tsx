@@ -32,8 +32,13 @@ export default function GatewayHeader() {
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
 
           {/* Logo */}
-          <Link href="/dubai-chamber" className="flex items-center shrink-0">
-            <img src="/data-direct-logo.svg" alt="Data Direct" className="h-6 w-auto" />
+          <Link href="/dubai-chamber" className="flex items-center gap-2 shrink-0">
+            <div className="w-7 h-7 bg-black rounded-sm flex items-center justify-center">
+              <div className="grid grid-cols-2 gap-[2px]">
+                {[0,1,2,3].map(i => <div key={i} className="w-[5px] h-[5px] bg-white rounded-[1px]" />)}
+              </div>
+            </div>
+            <span className="text-[14px] font-bold text-black tracking-tight">LOGO</span>
           </Link>
 
           <div className="w-px h-4 bg-black/12 shrink-0" />

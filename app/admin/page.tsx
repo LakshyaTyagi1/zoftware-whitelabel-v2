@@ -384,8 +384,13 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen bg-[#f5f5f7] text-black">
       <header className="sticky top-0 z-40 border-b border-black/8 bg-white/95 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-3 px-4 sm:px-6">
-          <Link href="/dubai-chamber" className="flex items-center shrink-0">
-            <Image src="/data-direct-logo.svg" alt="Data Direct" width={120} height={24} className="h-6 w-[120px]" />
+          <Link href="/dubai-chamber" className="flex items-center gap-2 shrink-0">
+            <div className="w-7 h-7 bg-black rounded-sm flex items-center justify-center">
+              <div className="grid grid-cols-2 gap-[2px]">
+                {[0,1,2,3].map(i => <div key={i} className="w-[5px] h-[5px] bg-white rounded-[1px]" />)}
+              </div>
+            </div>
+            <span className="text-[14px] font-bold text-black tracking-tight">LOGO</span>
           </Link>
           <div className="hidden h-4 w-px bg-black/12 sm:block" />
           <div className="flex items-center gap-2">

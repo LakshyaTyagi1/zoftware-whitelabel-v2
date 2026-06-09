@@ -89,7 +89,14 @@ function SignInContent() {
 
         {/* Logo bar */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <img src="/data-direct-logo.svg" alt="Data Direct" className="h-7 w-auto" />
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-black rounded-sm flex items-center justify-center">
+              <div className="grid grid-cols-2 gap-[2.5px]">
+                {[0,1,2,3].map(i => <div key={i} className="w-[6px] h-[6px] bg-white rounded-[1px]" />)}
+              </div>
+            </div>
+            <span className="text-[15px] font-bold text-black tracking-tight">LOGO</span>
+          </div>
           <div className="w-px h-5 bg-black/12" />
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-5 rounded-sm bg-[#007AFF] flex items-center justify-center">
