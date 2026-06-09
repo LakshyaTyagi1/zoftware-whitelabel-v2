@@ -42,7 +42,7 @@ export const bundles: Bundle[] = [
     savePct: 40,
     annualMonthlyPrice: 239,
     activationDays: 7,
-    color: '#007AFF',
+    color: '#0284C7',
     badge: 'Most Popular',
     items: [
       {
@@ -100,7 +100,7 @@ export const bundles: Bundle[] = [
     savePct: 33,
     annualMonthlyPrice: 479,
     activationDays: 7,
-    color: '#5856D6',
+    color: '#7C3AED',
     badge: 'Best Value',
     items: [
       {
@@ -166,7 +166,7 @@ export const bundles: Bundle[] = [
     savePct: 33,
     annualMonthlyPrice: 799,
     activationDays: 7,
-    color: '#34C759',
+    color: '#0F766E',
     badge: 'Enterprise',
     items: [
       {
