@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, Suspense } from 'react';
+import type { ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -30,7 +31,30 @@ const MANAGED_SERVICES = [
   { id: 'managed-pro',   label: 'Managed Pro',       desc: '24×7 monitoring, patch management, backups',  price: 349 },
 ];
 
-type Contact = { name: string; email: string; phone: string };
+type Contact = { name: string; email: string; phone: string; designation: string };
+
+// ── Field component defined at module level so it is never remounted ────────
+function Field({ label, value, onChange, placeholder, type = 'text', icon, error, optional = false }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder: string;
+  type?: string; icon?: ReactNode; error?: string; optional?: boolean;
+}) {
+  return (
+    <div>
+      <label className="block text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.06em] mb-1.5">
+        {label}{optional && <span className="text-[10px] font-normal ml-1 normal-case">(optional)</span>}
+      </label>
+      <div className="relative">
+        {icon && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">{icon}</span>}
+        <input
+          type={type} value={value} onChange={e => onChange(e.target.value)}
+          placeholder={placeholder}
+          className={`w-full border bg-zinc-50 ${icon ? 'pl-9' : 'pl-3.5'} pr-3.5 py-2.5 text-[13px] text-black placeholder-zinc-300 outline-none focus:border-zinc-300 focus:bg-white rounded-lg min-h-[42px] transition-colors ${error ? 'border-red-400' : 'border-zinc-200'}`}
+        />
+      </div>
+      {error && <p className="text-[11px] text-red-500 mt-1">{error}</p>}
+    </div>
+  );
+}
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -52,16 +76,16 @@ function CheckoutContent() {
   // ── Step 1 state — Plan & Pricing ──────────────────────────────────────
   const [billingCycle, setBillingCycle] = useState<'monthly'|'annual'>(billingParam as 'monthly'|'annual');
   const [currency, setCurrency]         = useState<'USD'|'AED'>(currencyParam);
-  const [licenses, setLicenses]         = useState(isBundle ? 1 : 5);
+  const [licenses, setLicenses]         = useState(1);
   const [profSel, setProfSel]           = useState<string[]>([]);
   const [managedSel, setManagedSel]     = useState<string[]>([]);
 
-  const changeLicenses = (d: number) => { if (!isBundle) setLicenses(p => Math.max(5, Math.min(100, p + d * 5))); };
+  const changeLicenses = (d: number) => setLicenses(p => Math.max(1, Math.min(500, p + d)));
   const toggleProf    = (id: string)  => setProfSel(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
   const toggleManaged = (id: string)  => setManagedSel(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
 
   const unitPrice         = billingCycle === 'annual' ? Math.round(basePrice * 0.8) : basePrice;
-  const licenseMult       = isBundle ? 1 : licenses;
+  const licenseMult       = licenses;
   const softwareTotal     = unitPrice * licenseMult;
   const annualSaving      = billingCycle === 'annual' ? Math.round(basePrice * licenseMult * 12 * 0.2) : 0;
   const profTotal         = PROF_SERVICES.filter(s => profSel.includes(s.id)).reduce((a, x) => a + x.price, 0);
@@ -81,7 +105,7 @@ function CheckoutContent() {
   const [sameAddress, setSameAddress] = useState(true);
   const [billing, setBilling]         = useState({ line1: '', city: '', country: 'UAE' });
   const [contacts, setContacts]       = useState<Contact[]>([]);
-  const addContact    = () => setContacts(c => [...c, { name: '', email: '', phone: '' }]);
+  const addContact    = () => setContacts(c => [...c, { name: '', email: '', phone: '', designation: '' }]);
   const removeContact = (i: number) => setContacts(c => c.filter((_, j) => j !== i));
   const updateContact = (i: number, field: keyof Contact, val: string) =>
     setContacts(c => c.map((x, j) => j === i ? { ...x, [field]: val } : x));
@@ -110,24 +134,6 @@ function CheckoutContent() {
     if (validatePayment()) { setTxnId(mockUUID()); setStep('success'); }
   };
 
-  // ── Shared input component ─────────────────────────────────────────────
-  const Field = ({ label, value, onChange, placeholder, type='text', icon, error, optional=false }: {
-    label: string; value: string; onChange: (v:string)=>void; placeholder: string;
-    type?: string; icon?: React.ReactNode; error?: string; optional?: boolean;
-  }) => (
-    <div>
-      <label className="block text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.06em] mb-1.5">
-        {label}{optional && <span className="text-[10px] font-normal ml-1 normal-case">(optional)</span>}
-      </label>
-      <div className="relative">
-        {icon && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">{icon}</span>}
-        <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-          className={`w-full border bg-zinc-50 ${icon ? 'pl-9' : 'pl-3.5'} pr-3.5 py-2.5 text-[13px] text-black placeholder-zinc-300 outline-none focus:border-zinc-300 focus:bg-white rounded-lg min-h-[42px] transition-colors ${error ? 'border-red-400' : 'border-zinc-200'}`} />
-      </div>
-      {error && <p className="text-[11px] text-red-500 mt-1">{error}</p>}
-    </div>
-  );
-
   // ── Order summary (right rail) ─────────────────────────────────────────
   const OrderSummary = () => (
     <div className="border border-zinc-200 rounded-xl overflow-hidden bg-white sticky top-24">
@@ -148,7 +154,7 @@ function CheckoutContent() {
 
         {/* Price rows */}
         <div className="space-y-2 text-[13px]">
-          <div className="flex justify-between"><span className="text-zinc-500">Software{!isBundle ? ` ×${licenses}` : ''}</span><span className="font-semibold">{fmt(softwareTotal)}/mo</span></div>
+          <div className="flex justify-between"><span className="text-zinc-500">Software ×{licenses}</span><span className="font-semibold">{fmt(softwareTotal)}/mo</span></div>
           {billingCycle === 'annual' && annualSaving > 0 && <div className="flex justify-between text-[12px]"><span className="text-emerald-600">Annual saving</span><span className="text-emerald-600 font-semibold">{fmt(annualSaving)}/yr</span></div>}
           {managedMonthly > 0 && <div className="flex justify-between"><span className="text-zinc-500">Managed Services</span><span className="font-semibold">+{fmt(managedMonthly)}/mo</span></div>}
           {profTotal > 0 && <div className="flex justify-between"><span className="text-zinc-500">Prof. Services</span><span className="font-semibold">+{fmt(profTotal)}</span></div>}
@@ -199,7 +205,7 @@ function CheckoutContent() {
           {[
             { label: 'Order ref', value: merchantRef.split('-')[0].toUpperCase() },
             { label: 'Monthly total', value: fmt(grandMonthly) + '/mo' },
-            { label: 'Licenses', value: isBundle ? '1 bundle' : `${licenses} users` },
+            { label: 'Licenses', value: isBundle ? `${licenses} bundle${licenses !== 1 ? 's' : ''}` : `${licenses} user${licenses !== 1 ? 's' : ''}` },
             { label: 'Activation', value: '2–7 business days' },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between text-[12px]">
@@ -308,26 +314,28 @@ function CheckoutContent() {
                     })}
                   </div>
 
-                  {/* Licenses */}
-                  {!isBundle && basePrice > 0 && (
+                  {/* Licenses — shown for both products and bundles */}
+                  {basePrice > 0 && (
                     <div className="border-t border-zinc-100 pt-4">
-                      <p className="text-[12px] font-semibold text-black mb-3">Number of Licenses <span className="text-zinc-400 font-normal">(multiples of 5)</span></p>
+                      <p className="text-[12px] font-semibold text-black mb-3">
+                        {isBundle ? 'Number of Bundles' : 'Number of Licenses'}
+                      </p>
                       <div className="flex items-center gap-3">
-                        <button onClick={() => changeLicenses(-1)} disabled={licenses <= 5}
+                        <button onClick={() => changeLicenses(-1)} disabled={licenses <= 1}
                           className="w-9 h-9 border border-zinc-200 rounded-lg flex items-center justify-center hover:bg-zinc-50 disabled:opacity-30 transition-colors">
                           <Minus size={14}/>
                         </button>
                         <div className="flex-1 text-center">
                           <span className="text-[22px] font-bold text-black">{licenses}</span>
-                          <p className="text-[11px] text-zinc-400">users</p>
+                          <p className="text-[11px] text-zinc-400">{isBundle ? 'bundle(s)' : 'users'}</p>
                         </div>
-                        <button onClick={() => changeLicenses(1)} disabled={licenses >= 100}
+                        <button onClick={() => changeLicenses(1)} disabled={licenses >= 500}
                           className="w-9 h-9 border border-zinc-200 rounded-lg flex items-center justify-center hover:bg-zinc-50 disabled:opacity-30 transition-colors">
                           <Plus size={14}/>
                         </button>
                       </div>
                       <a href="mailto:success@zoftware.com" className="mt-2 flex items-center justify-center gap-1 text-[11px] text-[#007AFF] hover:underline">
-                        <MessageSquare size={10}/> Need custom licensing? Talk to us
+                        <MessageSquare size={10}/> Need custom volume? Talk to us
                       </a>
                     </div>
                   )}
@@ -489,10 +497,13 @@ function CheckoutContent() {
                       <button onClick={() => removeContact(i)} className="absolute top-3 right-3 text-zinc-300 hover:text-zinc-600 transition-colors"><X size={14}/></button>
                       <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-[0.06em] mb-3">Contact {i + 2}</p>
                       <div className="space-y-3">
-                        <Field label="Full Name" value={c.name} onChange={v => updateContact(i,'name',v)} placeholder="Team member name"/>
-                        <div className="grid grid-cols-2 gap-3">
-                          <Field label="Email" value={c.email} onChange={v => updateContact(i,'email',v)} placeholder="email@company.ae" type="email"/>
-                          <Field label="Phone" value={c.phone} onChange={v => updateContact(i,'phone',v)} placeholder="+971 50 000 0000" type="tel"/>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <Field label="Full Name" value={c.name} onChange={v => updateContact(i,'name',v)} placeholder="Team member name" icon={<User2 size={13}/>}/>
+                          <Field label="Designation / Role" value={c.designation} onChange={v => updateContact(i,'designation',v)} placeholder="e.g. Sales Manager"/>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <Field label="Email" value={c.email} onChange={v => updateContact(i,'email',v)} placeholder="email@company.ae" type="email" icon={<Mail size={13}/>}/>
+                          <Field label="Phone" value={c.phone} onChange={v => updateContact(i,'phone',v)} placeholder="+971 50 000 0000" type="tel" icon={<Phone size={13}/>}/>
                         </div>
                       </div>
                     </div>
