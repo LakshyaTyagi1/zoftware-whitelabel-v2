@@ -752,10 +752,8 @@ export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
 
             </div>{/* end left col */}
 
-                {/* ── RIGHT PANEL: summary + CSM ── */}
-                <div className="hidden xl:flex flex-col w-[280px] shrink-0 gap-4 sticky top-0 self-start">
-
-                  {/* Account summary */}
+                {/* ── RIGHT PANEL: account summary only ── */}
+                <div className="hidden xl:block w-[240px] shrink-0 sticky top-0 self-start">
                   <div className="border border-black/8 rounded-sm overflow-hidden">
                     <div className="px-4 py-3 bg-[#f9fafb] border-b border-black/8">
                       <p className="text-[10px] font-bold text-[#86868b] uppercase tracking-[0.08em]">Account Summary</p>
@@ -772,53 +770,6 @@ export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
                           <span className="text-[13px] font-bold" style={{ color: c }}>{v}</span>
                         </div>
                       ))}
-                    </div>
-                  </div>
-
-                  {/* CSM card — prominent */}
-                  <div className="rounded-sm overflow-hidden"
-                    style={{ background: 'linear-gradient(160deg, #0051D5 0%, #003CA6 100%)' }}>
-                    <div className="p-5">
-                      <p className="text-[9px] font-bold uppercase tracking-[0.1em] mb-4"
-                        style={{ color: 'rgba(255,255,255,0.55)' }}>Your Success Manager</p>
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white text-[14px] font-bold shrink-0"
-                          style={{ background: 'rgba(255,255,255,0.2)' }}>
-                          {mockContact.avatar}
-                        </div>
-                        <div>
-                          <p className="text-[15px] font-semibold text-white">{mockContact.name}</p>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] animate-pulse shrink-0" />
-                            <p className="text-[11px] font-medium" style={{ color: '#4ade80' }}>Online now</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="space-y-2 mb-4">
-                        {[
-                          { icon: <Mail size={11} />, v: mockContact.email },
-                          { icon: <Phone size={11} />, v: mockContact.phone },
-                          { icon: <Clock size={11} />, v: mockContact.availability },
-                        ].map(({ icon, v }) => (
-                          <div key={v} className="flex items-center gap-2 text-[11px]"
-                            style={{ color: 'rgba(255,255,255,0.8)' }}>
-                            <span style={{ color: 'rgba(255,255,255,0.5)' }} className="shrink-0">{icon}</span>
-                            <span className="truncate">{v}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <a href={`mailto:${mockContact.email}`}
-                          className="flex items-center justify-center gap-2 py-2.5 text-[12px] font-semibold rounded-sm transition-colors"
-                          style={{ background: '#fff', color: '#0051D5' }}>
-                          <Mail size={12} /> Email Sana
-                        </a>
-                        <a href={`https://wa.me/${mockContact.whatsapp}`} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 py-2.5 text-[12px] font-semibold rounded-sm transition-colors"
-                          style={{ background: '#25D366', color: '#fff' }}>
-                          <MessageSquare size={12} /> WhatsApp
-                        </a>
-                      </div>
                     </div>
                   </div>
                 </div>
