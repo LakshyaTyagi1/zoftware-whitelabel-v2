@@ -123,7 +123,7 @@ const gatewayTools = [
     icon: <TrendingDown size={20} strokeWidth={1.5} />,
     label: 'Cost Optimizer',
     desc: 'Analyse your current software spend and uncover savings opportunities instantly.',
-    href: 'https://enterprise-level-redesign.vercel.app',
+    href: 'https://enterprise-level-redesign.vercel.app?autoauth=zv2',
     color: '#16a34a',
     external: true,
   },
