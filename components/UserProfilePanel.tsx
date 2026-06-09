@@ -5,22 +5,19 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   X, User, Building2, Mail, Phone, CheckCircle, Clock, Package,
-  FileText, BarChart2, MessageSquare, AlertCircle, ChevronRight,
-  Star, Shield, Download, ExternalLink, Zap, ArrowRight,
-  Ticket, ChevronDown, Edit2, Bell
+  FileText, BarChart2, MessageSquare, ShoppingCart, ArrowRight,
+  Shield, Download, Zap, ExternalLink, ChevronDown, Edit2,
+  Bell, Ticket, ChevronRight, Star, Trash2
 } from 'lucide-react';
 
 // ── Mock data ──────────────────────────────────────────────────────────────
+
 const mockUser = {
-  firstName: 'Ravi',
-  lastName: 'Sharma',
+  firstName: 'Ravi', lastName: 'Sharma',
   email: 'ravi.sharma@gulf-enterprises.ae',
   phone: '+971 50 123 4567',
   role: 'Chief Technology Officer',
   company: 'Gulf Enterprises LLC',
-  companySize: '51–200 employees',
-  industry: 'Trading & Distribution',
-  trn: 'AE123456789012345',
   memberSince: 'March 2024',
   avatar: 'RS',
 };
@@ -29,11 +26,10 @@ const mockCompany = {
   name: 'Gulf Enterprises LLC',
   license: 'DED-2019-8847123',
   address: 'Al Quoz Industrial Area 2, Dubai, UAE',
-  country: 'United Arab Emirates',
-  website: 'gulf-enterprises.ae',
   vatNumber: 'AE123456789012345',
   industry: 'Trading & Distribution',
   employees: '51–200',
+  website: 'gulf-enterprises.ae',
 };
 
 const mockContact = {
@@ -41,27 +37,18 @@ const mockContact = {
   title: 'Customer Success Manager',
   email: 'sana@zoftware.com',
   phone: '+971 4 000 0001',
-  whatsapp: '+971 55 000 0001',
+  whatsapp: '+971550000001',
   avatar: 'SR',
   availability: 'Sun–Thu, 9am–6pm GST',
+  online: true,
 };
 
 const mockPurchases = [
   {
-    id: 'ORD-A1F3',
-    name: 'Salesforce CRM',
-    vendor: 'Salesforce',
-    logo: 'SF',
-    plan: 'Enterprise',
-    licenses: 10,
-    billing: 'Annual',
-    price: '$1,200/mo',
-    status: 'Active',
-    activatedOn: '15 Apr 2025',
-    nextRenewal: '15 Apr 2026',
-    type: 'software',
-    slug: 'salesforce',
-    department: 'Sales',
+    id: 'ORD-A1F3', name: 'Salesforce CRM', vendor: 'Salesforce', logo: 'SF',
+    plan: 'Enterprise', licenses: 10, billing: 'Annual', price: '$1,200/mo',
+    status: 'Active', activatedOn: '15 Apr 2025', nextRenewal: '15 Apr 2026',
+    type: 'software', slug: 'salesforce', department: 'Sales',
     holders: [
       { name: 'Ravi Sharma', email: 'ravi.sharma@gulf-enterprises.ae', role: 'Admin / Owner' },
       { name: 'Aisha Al-Mansoori', email: 'aisha.m@gulf-enterprises.ae', role: 'Sales Lead' },
@@ -69,92 +56,75 @@ const mockPurchases = [
     ],
   },
   {
-    id: 'ORD-B8C2',
-    name: 'Zoho Books',
-    vendor: 'Zoho',
-    logo: 'ZB',
-    plan: 'Professional',
-    licenses: 5,
-    billing: 'Monthly',
-    price: '$245/mo',
-    status: 'Active',
-    activatedOn: '01 Jun 2025',
-    nextRenewal: '01 Jul 2026',
-    type: 'software',
-    slug: 'zoho-books',
-    department: 'Finance',
+    id: 'ORD-B8C2', name: 'Zoho Books', vendor: 'Zoho', logo: 'ZB',
+    plan: 'Professional', licenses: 5, billing: 'Monthly', price: '$245/mo',
+    status: 'Active', activatedOn: '01 Jun 2025', nextRenewal: '01 Jul 2026',
+    type: 'software', slug: 'zoho-books', department: 'Finance',
     holders: [
       { name: 'Ravi Sharma', email: 'ravi.sharma@gulf-enterprises.ae', role: 'Billing Admin' },
       { name: 'Sarah Jenkins', email: 'sarah.j@gulf-enterprises.ae', role: 'Accountant' },
     ],
   },
   {
-    id: 'ORD-C4D7',
-    name: 'Freshdesk',
-    vendor: 'Freshworks',
-    logo: 'FD',
-    plan: 'Growth',
-    licenses: 5,
-    billing: 'Monthly',
-    price: '$75/mo',
-    status: 'Activating',
-    activatedOn: '—',
-    nextRenewal: '—',
-    type: 'software',
-    slug: 'freshdesk',
-    department: 'Customer Support',
+    id: 'ORD-C4D7', name: 'Freshdesk', vendor: 'Freshworks', logo: 'FD',
+    plan: 'Growth', licenses: 5, billing: 'Monthly', price: '$75/mo',
+    status: 'Activating', activatedOn: '—', nextRenewal: '—',
+    type: 'software', slug: 'freshdesk', department: 'Customer Support',
     holders: [
       { name: 'Ravi Sharma', email: 'ravi.sharma@gulf-enterprises.ae', role: 'Admin' },
       { name: 'Michael Chang', email: 'michael.c@gulf-enterprises.ae', role: 'Support Agent' },
     ],
   },
   {
-    id: 'BND-001',
-    name: 'Growth Bundle',
-    vendor: 'Zoftware',
-    logo: 'GB',
-    plan: 'Bundle',
-    licenses: 1,
-    billing: 'Annual',
-    price: '$599/mo',
-    status: 'Active',
-    activatedOn: '10 Mar 2025',
-    nextRenewal: '10 Mar 2026',
-    type: 'bundle',
-    slug: 'growth',
-    department: 'Operations',
+    id: 'BND-001', name: 'Growth Bundle', vendor: 'Zoftware', logo: 'GB',
+    plan: 'Bundle', licenses: 1, billing: 'Annual', price: '$599/mo',
+    status: 'Active', activatedOn: '10 Mar 2025', nextRenewal: '10 Mar 2026',
+    type: 'bundle', slug: 'growth', department: 'Operations',
     holders: [
-      { name: 'Ravi Sharma', email: 'ravi.sharma@gulf-enterprises.ae', role: 'Primary Holder' }
+      { name: 'Ravi Sharma', email: 'ravi.sharma@gulf-enterprises.ae', role: 'Primary Holder' },
     ],
+  },
+];
+
+const mockCart = [
+  {
+    id: 'CRT-001', name: 'Freshsales CRM', vendor: 'Freshworks', logo: 'FS',
+    plan: 'Pro', licenses: 15, billing: 'Monthly', price: 150,
+    type: 'software', slug: 'freshsales', addedOn: '2 hours ago', category: 'CRM & Sales',
+    originalPrice: 175, discountPct: 14,
+  },
+  {
+    id: 'CRT-002', name: 'Zoho Analytics', vendor: 'Zoho', logo: 'ZA',
+    plan: 'Standard', licenses: 5, billing: 'Annual', price: 30,
+    type: 'software', slug: 'zoho-analytics', addedOn: 'Yesterday', category: 'Analytics & BI',
+    originalPrice: 45, discountPct: 33,
+  },
+  {
+    id: 'CRT-003', name: 'Starter Bundle', vendor: 'Zoftware', logo: 'SB',
+    plan: 'Starter', licenses: 1, billing: 'Monthly', price: 299,
+    type: 'bundle', slug: 'starter', addedOn: '3 days ago', category: 'Bundle',
+    originalPrice: 499, discountPct: 40,
   },
 ];
 
 const mockRfpReports = [
   {
-    id: 'RFP-2025-001',
-    title: 'CRM & Sales Automation RFP',
-    date: '12 May 2025',
+    id: 'RFP-2025-001', title: 'CRM & Sales Automation RFP', date: '12 May 2025',
     status: 'Completed',
     summary: 'Evaluated 6 CRM platforms. Top recommendation: Salesforce Enterprise with 94% match score.',
-    matched: ['Salesforce CRM', 'Zoho CRM', 'HubSpot CRM'],
-    score: '94%',
+    matched: ['Salesforce CRM', 'Zoho CRM', 'HubSpot CRM'], score: '94%',
   },
   {
-    id: 'RFP-2025-002',
-    title: 'Finance & Accounting Tech RFP',
-    date: '03 Jun 2025',
+    id: 'RFP-2025-002', title: 'Finance & Accounting Tech RFP', date: '03 Jun 2025',
     status: 'Completed',
     summary: 'Focused on GCC-compliant accounting with VAT. Zoho Books rated highest for mid-market.',
-    matched: ['Zoho Books', 'QuickBooks Online', 'Xero'],
-    score: '88%',
+    matched: ['Zoho Books', 'QuickBooks Online', 'Xero'], score: '88%',
   },
 ];
 
 const mockStrategyReports = [
   {
-    id: 'STR-2025-001',
-    title: 'Digital Transformation Roadmap — ERP',
-    date: '20 Apr 2025',
+    id: 'STR-2025-001', title: 'Digital Transformation Roadmap — ERP', date: '20 Apr 2025',
     status: 'Completed',
     phases: ['Phase 1: Core ERP (SAP B1)', 'Phase 2: CRM Integration', 'Phase 3: Analytics & BI'],
     summary: 'Three-phase 18-month roadmap prioritising operational ERP rollout followed by customer experience layer.',
@@ -163,22 +133,14 @@ const mockStrategyReports = [
 
 const mockTickets = [
   {
-    id: 'TKT-8841',
-    subject: 'Salesforce CRM — SSO configuration assistance',
-    status: 'Open',
-    priority: 'Medium',
-    created: '28 May 2025',
-    lastUpdate: '2 hours ago',
-    agent: 'Sana Al-Rashidi',
+    id: 'TKT-8841', subject: 'Salesforce CRM — SSO configuration assistance',
+    status: 'Open', priority: 'Medium', created: '28 May 2025',
+    lastUpdate: '2 hours ago', agent: 'Sana Al-Rashidi',
   },
   {
-    id: 'TKT-7923',
-    subject: 'Invoice request for Zoho Books — Q2 2025',
-    status: 'Resolved',
-    priority: 'Low',
-    created: '05 Apr 2025',
-    lastUpdate: '10 Apr 2025',
-    agent: 'Sana Al-Rashidi',
+    id: 'TKT-7923', subject: 'Invoice request for Zoho Books — Q2 2025',
+    status: 'Resolved', priority: 'Low', created: '05 Apr 2025',
+    lastUpdate: '10 Apr 2025', agent: 'Sana Al-Rashidi',
   },
 ];
 
@@ -188,10 +150,10 @@ const mockChats = [
   { date: '1 week ago', summary: 'Queried bundle upgrade options', bot: 'Zain AI' },
 ];
 
-// ── Tab type ───────────────────────────────────────────────────────────────
-type Tab = 'overview' | 'purchases' | 'reports' | 'support';
+// ── Types & helpers ────────────────────────────────────────────────────────
 
-// ── Status badge ───────────────────────────────────────────────────────────
+type Tab = 'overview' | 'purchases' | 'cart' | 'reports' | 'support';
+
 function StatusBadge({ status }: { status: string }) {
   const cfg: Record<string, string> = {
     Active: 'bg-[#dcfce7] text-[#16a34a]',
@@ -208,518 +170,683 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // ── Main component ─────────────────────────────────────────────────────────
+
 export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('overview');
   const [expandCompany, setExpandCompany] = useState(false);
   const [expandedHolders, setExpandedHolders] = useState<string[]>([]);
+  const [cartItems, setCartItems] = useState(mockCart);
 
-  const toggleHolders = (id: string) => {
-    setExpandedHolders(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
+  const toggleHolders = (id: string) =>
+    setExpandedHolders(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
+  const removeFromCart = (id: string) =>
+    setCartItems(prev => prev.filter(item => item.id !== id));
 
   const openTickets = mockTickets.filter(t => t.status === 'Open').length;
+  const cartTotal = cartItems.reduce((s, i) => s + i.price, 0);
 
-  const tabs: { id: Tab; label: string; badge?: number }[] = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'purchases', label: 'Purchases', badge: mockPurchases.length },
-    { id: 'reports', label: 'Reports', badge: mockRfpReports.length + mockStrategyReports.length },
-    { id: 'support', label: 'Support', badge: openTickets || undefined },
+  const tabs: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
+    { id: 'overview',  label: 'Overview',   icon: <User size={14} strokeWidth={1.6} /> },
+    { id: 'purchases', label: 'Purchases',  icon: <Package size={14} strokeWidth={1.6} />, badge: mockPurchases.length },
+    { id: 'cart',      label: 'Cart',       icon: <ShoppingCart size={14} strokeWidth={1.6} />, badge: cartItems.length },
+    { id: 'reports',   label: 'Reports',    icon: <FileText size={14} strokeWidth={1.6} />, badge: mockRfpReports.length + mockStrategyReports.length },
+    { id: 'support',   label: 'Support',    icon: <Ticket size={14} strokeWidth={1.6} />, badge: openTickets || undefined },
   ];
 
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Panel */}
-      <div className="fixed right-0 top-0 bottom-0 z-50 w-full sm:w-[420px] bg-white shadow-2xl flex flex-col overflow-hidden"
-        style={{ animation: 'slideInRight 0.22s cubic-bezier(0.16,1,0.3,1)' }}>
-        <style>{`@keyframes slideInRight { from { transform: translateX(100%); opacity: 0.6; } to { transform: translateX(0); opacity: 1; } }`}</style>
+      {/* Full-screen panel */}
+      <div className="fixed inset-0 z-50 bg-white flex flex-col"
+        style={{ animation: 'panelIn 0.25s cubic-bezier(0.16,1,0.3,1)' }}>
+        <style>{`
+          @keyframes panelIn { from { opacity: 0; transform: scale(0.98) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        `}</style>
 
-        {/* ── Panel header ── */}
-        <div className="shrink-0 border-b border-black/8">
-          {/* Top bar */}
-          <div className="flex items-center justify-between px-5 py-3.5">
-            <div className="flex items-center gap-3">
-              {/* Avatar */}
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[14px] font-bold shrink-0"
-                style={{ background: 'linear-gradient(135deg, #007AFF, #0051D5)' }}>
-                {mockUser.avatar}
-              </div>
-              <div>
-                <p className="text-[14px] font-semibold text-black leading-tight">
-                  {mockUser.firstName} {mockUser.lastName}
-                </p>
-                <p className="text-[11px] text-[#86868b]">{mockUser.role} · {mockUser.company}</p>
-              </div>
+        {/* ── Top bar ─────────────────────────────────────────────── */}
+        <div className="shrink-0 h-12 border-b border-black/8 flex items-center justify-between px-5 bg-white z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0"
+              style={{ background: 'linear-gradient(135deg, #007AFF, #0051D5)' }}>
+              {mockUser.avatar}
             </div>
-            <div className="flex items-center gap-1.5">
-              <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#f5f5f7] text-[#86868b] hover:text-black transition-colors relative">
-                <Bell size={15} />
-                {openTickets > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#ea580c]" />
-                )}
-              </button>
-              <button onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#f5f5f7] text-[#86868b] hover:text-black transition-colors">
-                <X size={16} />
-              </button>
+            <div className="flex items-center gap-2">
+              <p className="text-[13px] font-semibold text-black">{mockUser.firstName} {mockUser.lastName}</p>
+              <span className="text-[#c7c7cc]">·</span>
+              <p className="text-[12px] text-[#86868b] hidden sm:block">{mockUser.role} · {mockUser.company}</p>
             </div>
           </div>
-
-          {/* Quick stats */}
-          <div className="grid grid-cols-3 border-t border-black/6 divide-x divide-black/6">
-            {[
-              { v: mockPurchases.length.toString(), l: 'Active products' },
-              { v: (mockRfpReports.length + mockStrategyReports.length).toString(), l: 'Reports saved' },
-              { v: openTickets.toString(), l: 'Open tickets', alert: openTickets > 0 },
-            ].map(({ v, l, alert }) => (
-              <div key={l} className="py-2.5 text-center">
-                <p className={`text-[17px] font-semibold ${alert ? 'text-[#ea580c]' : 'text-black'}`}>{v}</p>
-                <p className="text-[9px] text-[#86868b] leading-snug px-1">{l}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Tabs */}
-          <div className="flex border-t border-black/6">
-            {tabs.map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-semibold border-b-2 transition-colors ${
-                  tab === t.id ? 'border-[#007AFF] text-[#007AFF]' : 'border-transparent text-[#86868b] hover:text-black'
-                }`}>
-                {t.label}
-                {t.badge !== undefined && (
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-                    tab === t.id ? 'bg-[#007AFF] text-white' : 'bg-[#f5f5f7] text-[#86868b]'
-                  }`}>{t.badge}</span>
-                )}
-              </button>
-            ))}
+          <div className="flex items-center gap-1.5">
+            <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#f5f5f7] text-[#86868b] hover:text-black transition-colors relative">
+              <Bell size={14} />
+              {openTickets > 0 && <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#ea580c]" />}
+            </button>
+            <button onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#f5f5f7] text-[#86868b] hover:text-black transition-colors">
+              <X size={16} />
+            </button>
           </div>
         </div>
 
-        {/* ── Scrollable content ── */}
-        <div className="flex-1 overflow-y-auto">
+        {/* ── Body: sidebar + content ──────────────────────────────── */}
+        <div className="flex-1 flex overflow-hidden">
 
-          {/* ─── OVERVIEW TAB ─── */}
-          {tab === 'overview' && (
-            <div className="p-5 space-y-5">
-              {/* Profile card */}
-              <div className="border border-black/8 rounded-sm overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 bg-[#f9fafb] border-b border-black/8">
-                  <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.07em]">Profile</span>
-                  <button className="flex items-center gap-1 text-[11px] text-[#007AFF] hover:text-[#0051D5]">
-                    <Edit2 size={10} /> Edit
-                  </button>
-                </div>
-                <div className="p-4 space-y-2.5">
-                  {[
-                    { icon: <User size={12} />, label: 'Name', value: `${mockUser.firstName} ${mockUser.lastName}` },
-                    { icon: <Mail size={12} />, label: 'Email', value: mockUser.email },
-                    { icon: <Phone size={12} />, label: 'Phone', value: mockUser.phone },
-                    { icon: <Shield size={12} />, label: 'Member since', value: mockUser.memberSince },
-                  ].map(({ icon, label, value }) => (
-                    <div key={label} className="flex items-center gap-3">
-                      <span className="text-[#86868b] shrink-0">{icon}</span>
-                      <span className="text-[11px] text-[#86868b] w-20 shrink-0">{label}</span>
-                      <span className="text-[12px] text-black font-medium truncate">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          {/* ── LEFT SIDEBAR ── */}
+          <aside className="hidden lg:flex flex-col w-[260px] border-r border-black/8 bg-[#f9fafb] shrink-0">
 
-              {/* Company details */}
-              <div className="border border-black/8 rounded-sm overflow-hidden">
-                <button
-                  onClick={() => setExpandCompany(e => !e)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-[#f9fafb] border-b border-black/8 hover:bg-[#f0f0f0] transition-colors">
-                  <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.07em]">Company Details</span>
-                  <ChevronDown size={13} className={`text-[#86868b] transition-transform ${expandCompany ? 'rotate-180' : ''}`} />
+            {/* Quick stats */}
+            <div className="grid grid-cols-3 border-b border-black/8 divide-x divide-black/8">
+              {[
+                { v: mockPurchases.length.toString(), l: 'Active', sub: 'products' },
+                { v: (mockRfpReports.length + mockStrategyReports.length).toString(), l: 'Reports', sub: 'saved' },
+                { v: openTickets.toString(), l: 'Open', sub: 'tickets', alert: openTickets > 0 },
+              ].map(({ v, l, sub, alert }) => (
+                <div key={l} className="py-3 text-center">
+                  <p className={`text-[18px] font-semibold leading-none mb-0.5 ${alert ? 'text-[#ea580c]' : 'text-black'}`}>{v}</p>
+                  <p className="text-[9px] text-[#86868b]">{l}</p>
+                  <p className="text-[9px] text-[#c7c7cc]">{sub}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Nav tabs */}
+            <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
+              {tabs.map(t => (
+                <button key={t.id} onClick={() => setTab(t.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-left text-[13px] font-medium transition-colors ${
+                    tab === t.id
+                      ? 'bg-black text-white'
+                      : 'text-[#555] hover:bg-white hover:text-black'
+                  }`}>
+                  <span className={tab === t.id ? 'text-white' : 'text-[#86868b]'}>{t.icon}</span>
+                  <span className="flex-1">{t.label}</span>
+                  {t.badge !== undefined && (
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${
+                      tab === t.id ? 'bg-white/20 text-white' : 'bg-[#f0f0f0] text-[#86868b]'
+                    }`}>{t.badge}</span>
+                  )}
                 </button>
-                {expandCompany && (
-                  <div className="p-4 space-y-2.5">
-                    {[
-                      { icon: <Building2 size={12} />, label: 'Company', value: mockCompany.name },
-                      { icon: <Shield size={12} />, label: 'License No.', value: mockCompany.license },
-                      { icon: <Zap size={12} />, label: 'VAT / TRN', value: mockCompany.vatNumber },
-                      { icon: <User size={12} />, label: 'Industry', value: mockCompany.industry },
-                      { icon: <User size={12} />, label: 'Team size', value: mockCompany.employees },
-                      { icon: <ExternalLink size={12} />, label: 'Website', value: mockCompany.website },
-                      { icon: <Mail size={12} />, label: 'Address', value: mockCompany.address },
-                    ].map(({ icon, label, value }) => (
-                      <div key={label} className="flex items-start gap-3">
-                        <span className="text-[#86868b] shrink-0 mt-0.5">{icon}</span>
-                        <span className="text-[11px] text-[#86868b] w-20 shrink-0">{label}</span>
-                        <span className="text-[12px] text-black font-medium leading-snug">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {!expandCompany && (
-                  <div className="px-4 py-3">
-                    <p className="text-[12px] font-medium text-black">{mockCompany.name}</p>
-                    <p className="text-[11px] text-[#86868b]">{mockCompany.industry} · {mockCompany.employees}</p>
-                  </div>
-                )}
-              </div>
+              ))}
+            </nav>
 
-              {/* Primary point of contact */}
-              <div className="border border-black/8 rounded-sm overflow-hidden">
-                <div className="px-4 py-3 bg-[#f9fafb] border-b border-black/8">
-                  <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.07em]">Your Customer Success Manager</span>
+            {/* ── CSM card — always visible at bottom ── */}
+            <div className="shrink-0 border-t border-black/8 p-4 bg-white">
+              <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-[#86868b] mb-3">Your Success Manager</p>
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #0051D5, #003CA6)' }}>
+                  {mockContact.avatar}
                 </div>
-                <div className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0"
-                      style={{ background: 'linear-gradient(135deg, #0051D5, #003CA6)' }}>
-                      {mockContact.avatar}
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-semibold text-black">{mockContact.name}</p>
-                      <p className="text-[11px] text-[#86868b]">{mockContact.title}</p>
-                    </div>
-                    <div className="ml-auto flex items-center gap-1 text-[9px] font-semibold text-[#16a34a] bg-[#dcfce7] px-2 py-0.5 rounded-full">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
-                      Online
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    {[
-                      { icon: <Mail size={11} />, value: mockContact.email },
-                      { icon: <Phone size={11} />, value: mockContact.phone },
-                      { icon: <Clock size={11} />, value: mockContact.availability },
-                    ].map(({ icon, value }) => (
-                      <div key={value} className="flex items-center gap-2 text-[11px] text-[#555]">
-                        <span className="text-[#86868b]">{icon}</span> {value}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2 mt-3">
-                    <a href={`mailto:${mockContact.email}`}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold bg-[#007AFF] text-white rounded-sm hover:bg-[#0051D5] transition-colors">
-                      <Mail size={11} /> Email
-                    </a>
-                    <a href={`https://wa.me/${mockContact.whatsapp.replace(/\s/g, '')}`} target="_blank" rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold border border-black/10 text-black rounded-sm hover:bg-[#f5f5f7] transition-colors">
-                      <MessageSquare size={11} /> WhatsApp
-                    </a>
+                <div className="min-w-0">
+                  <p className="text-[12px] font-semibold text-black leading-tight truncate">{mockContact.name}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse shrink-0" />
+                    <p className="text-[10px] text-[#16a34a] font-medium">Online now</p>
                   </div>
                 </div>
+              </div>
+              <div className="space-y-1.5 mb-3">
+                {[
+                  { icon: <Mail size={10} />, v: mockContact.email },
+                  { icon: <Phone size={10} />, v: mockContact.phone },
+                  { icon: <Clock size={10} />, v: mockContact.availability },
+                ].map(({ icon, v }) => (
+                  <div key={v} className="flex items-center gap-2 text-[10px] text-[#555]">
+                    <span className="text-[#86868b] shrink-0">{icon}</span>
+                    <span className="truncate">{v}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-1.5">
+                <a href={`mailto:${mockContact.email}`}
+                  className="flex-1 flex items-center justify-center gap-1 py-1.5 text-[10px] font-semibold bg-[#007AFF] text-white rounded-sm hover:bg-[#0051D5] transition-colors">
+                  <Mail size={10} /> Email
+                </a>
+                <a href={`https://wa.me/${mockContact.whatsapp}`} target="_blank" rel="noopener noreferrer"
+                  className="flex-1 flex items-center justify-center gap-1 py-1.5 text-[10px] font-semibold border border-black/10 text-black rounded-sm hover:bg-[#f5f5f7] transition-colors">
+                  <MessageSquare size={10} /> WhatsApp
+                </a>
               </div>
             </div>
-          )}
+          </aside>
 
-          {/* ─── PURCHASES TAB ─── */}
-          {tab === 'purchases' && (
-            <div className="p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-[12px] font-semibold text-black">{mockPurchases.length} active subscriptions</p>
-                <Link href="/software" onClick={onClose}
-                  className="text-[11px] font-semibold text-[#007AFF] hover:text-[#0051D5] flex items-center gap-1">
-                  Browse more <ArrowRight size={10} />
-                </Link>
-              </div>
+          {/* ── MAIN CONTENT ── */}
+          <main className="flex-1 overflow-y-auto bg-white">
 
-              {mockPurchases.map(p => (
-                <div
-                  key={p.id}
-                  onClick={() => {
-                    onClose();
-                    router.push(p.type === 'bundle' ? `/bundles/${p.slug}` : `/software/product/${p.slug}`);
-                  }}
-                  className="block border border-black/8 rounded-sm overflow-hidden hover:border-black/16 hover:shadow-sm transition-all group cursor-pointer"
-                >
-                  <div className="flex items-center gap-3 px-4 py-3.5">
-                    <div className="w-10 h-10 rounded-sm bg-[#f5f5f7] border border-black/8 flex items-center justify-center shrink-0 text-black">
-                      <span className="text-[11px] font-bold">{p.logo}</span>
+            {/* Mobile tabs (shown below lg) */}
+            <div className="lg:hidden flex border-b border-black/8 overflow-x-auto sticky top-0 bg-white z-10">
+              {tabs.map(t => (
+                <button key={t.id} onClick={() => setTab(t.id)}
+                  className={`flex items-center gap-1.5 px-4 py-3 text-[11px] font-semibold border-b-2 whitespace-nowrap shrink-0 transition-colors ${
+                    tab === t.id ? 'border-[#007AFF] text-[#007AFF]' : 'border-transparent text-[#86868b] hover:text-black'
+                  }`}>
+                  {t.label}
+                  {t.badge !== undefined && (
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                      tab === t.id ? 'bg-[#007AFF] text-white' : 'bg-[#f5f5f7] text-[#86868b]'
+                    }`}>{t.badge}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Page header */}
+            <div className="border-b border-black/8 px-6 lg:px-10 py-5">
+              <h1 className="text-[22px] font-semibold text-black tracking-tight">
+                {tab === 'overview' && 'Profile & Account'}
+                {tab === 'purchases' && 'Purchases & Subscriptions'}
+                {tab === 'cart' && 'My Cart'}
+                {tab === 'reports' && 'Saved Reports'}
+                {tab === 'support' && 'Support & Help'}
+              </h1>
+              <p className="text-[13px] text-[#86868b] mt-1">
+                {tab === 'overview' && 'Your personal and company information'}
+                {tab === 'purchases' && `${mockPurchases.length} active subscriptions · $1,520/mo`}
+                {tab === 'cart' && `${cartItems.length} item${cartItems.length !== 1 ? 's' : ''} · $${cartTotal}/mo estimated`}
+                {tab === 'reports' && `${mockRfpReports.length + mockStrategyReports.length} reports generated`}
+                {tab === 'support' && `${openTickets} open ticket${openTickets !== 1 ? 's' : ''}`}
+              </p>
+            </div>
+
+            <div className="px-6 lg:px-10 py-6 max-w-[860px]">
+
+              {/* ─── OVERVIEW ─── */}
+              {tab === 'overview' && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                  {/* Profile card */}
+                  <div className="border border-black/8 rounded-sm overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 bg-[#f9fafb] border-b border-black/8">
+                      <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.07em]">Profile</span>
+                      <button className="flex items-center gap-1 text-[11px] text-[#007AFF] hover:text-[#0051D5] transition-colors">
+                        <Edit2 size={10} /> Edit
+                      </button>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <p className="text-[13px] font-semibold text-black truncate group-hover:text-[#007AFF] transition-colors">{p.name}</p>
-                        <StatusBadge status={p.status} />
+                    <div className="p-5 space-y-3.5">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-[18px] font-bold shrink-0"
+                          style={{ background: 'linear-gradient(135deg, #007AFF, #0051D5)' }}>
+                          {mockUser.avatar}
+                        </div>
+                        <div>
+                          <p className="text-[16px] font-semibold text-black">{mockUser.firstName} {mockUser.lastName}</p>
+                          <p className="text-[12px] text-[#86868b]">{mockUser.role}</p>
+                        </div>
                       </div>
-                      <p className="text-[11px] text-[#86868b]">
-                        {p.vendor} · {p.plan} · {p.licenses} {p.type === 'bundle' ? 'bundle' : 'users'} · <span className="font-medium text-zinc-500">{p.department}</span>
-                      </p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-[13px] font-semibold text-black">{p.price}</p>
-                      <p className="text-[10px] text-[#86868b]">{p.billing}</p>
+                      {[
+                        { icon: <Mail size={13} />, label: 'Email', value: mockUser.email },
+                        { icon: <Phone size={13} />, label: 'Phone', value: mockUser.phone },
+                        { icon: <Shield size={13} />, label: 'Member since', value: mockUser.memberSince },
+                      ].map(({ icon, label, value }) => (
+                        <div key={label} className="flex items-center gap-3">
+                          <span className="text-[#86868b] shrink-0">{icon}</span>
+                          <span className="text-[11px] text-[#86868b] w-24 shrink-0">{label}</span>
+                          <span className="text-[13px] text-black font-medium truncate">{value}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="border-t border-black/6 px-4 py-2 flex items-center justify-between bg-[#f9fafb]">
-                    <div className="text-[10px] text-[#86868b] flex items-center gap-3">
-                      {p.status === 'Activating' ? (
-                        <span className="flex items-center gap-1 text-[#d97706]">
-                          <Clock size={9} /> Activation in progress
-                        </span>
-                      ) : (
+
+                  {/* Company card */}
+                  <div className="border border-black/8 rounded-sm overflow-hidden">
+                    <button onClick={() => setExpandCompany(e => !e)}
+                      className="w-full flex items-center justify-between px-4 py-3 bg-[#f9fafb] border-b border-black/8 hover:bg-[#f0f0f0] transition-colors">
+                      <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.07em]">Company Details</span>
+                      <ChevronDown size={13} className={`text-[#86868b] transition-transform ${expandCompany ? 'rotate-180' : ''}`} />
+                    </button>
+                    <div className="p-5 space-y-3">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 rounded-sm bg-[#f5f5f7] border border-black/8 flex items-center justify-center shrink-0">
+                          <Building2 size={16} className="text-[#86868b]" />
+                        </div>
+                        <div>
+                          <p className="text-[14px] font-semibold text-black">{mockCompany.name}</p>
+                          <p className="text-[11px] text-[#86868b]">{mockCompany.industry} · {mockCompany.employees} employees</p>
+                        </div>
+                      </div>
+                      {expandCompany && (
                         <>
-                          <span>Activated {p.activatedOn}</span>
-                          <span className="text-[#c7c7cc]">·</span>
-                          <span>Renews {p.nextRenewal}</span>
+                          {[
+                            { icon: <Shield size={12} />, label: 'License No.', value: mockCompany.license },
+                            { icon: <Zap size={12} />, label: 'VAT / TRN', value: mockCompany.vatNumber },
+                            { icon: <ExternalLink size={12} />, label: 'Website', value: mockCompany.website },
+                            { icon: <Mail size={12} />, label: 'Address', value: mockCompany.address },
+                          ].map(({ icon, label, value }) => (
+                            <div key={label} className="flex items-start gap-3">
+                              <span className="text-[#86868b] shrink-0 mt-0.5">{icon}</span>
+                              <span className="text-[11px] text-[#86868b] w-20 shrink-0">{label}</span>
+                              <span className="text-[12px] text-black font-medium leading-snug">{value}</span>
+                            </div>
+                          ))}
                         </>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleHolders(p.id);
-                        }}
-                        className="flex items-center gap-1 text-[10px] font-semibold text-[#007AFF] hover:text-[#0051D5] bg-[#007AFF]/5 hover:bg-[#007AFF]/10 px-2 py-0.5 rounded-sm transition-colors shrink-0"
-                      >
-                        <span>Holders</span>
-                        <ChevronDown size={10} className={`transition-transform duration-200 shrink-0 ${expandedHolders.includes(p.id) ? 'rotate-180' : ''}`} />
-                      </button>
-                      <span className="text-[10px] font-mono text-[#86868b]">{p.id}</span>
+                  </div>
+
+                  {/* Quick stats across the bottom */}
+                  <div className="lg:col-span-2 grid grid-cols-3 gap-3">
+                    {[
+                      { v: mockPurchases.length.toString(), l: 'Active subscriptions', c: '#007AFF' },
+                      { v: '$1,520', l: 'Monthly spend', c: '#000' },
+                      { v: '$680', l: 'Saved vs list price', c: '#16a34a' },
+                    ].map(({ v, l, c }) => (
+                      <div key={l} className="border border-black/8 rounded-sm p-4 bg-[#f9fafb]">
+                        <p className="text-[22px] font-semibold" style={{ color: c }}>{v}</p>
+                        <p className="text-[11px] text-[#86868b] mt-0.5">{l}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Mobile CSM card */}
+                  <div className="lg:hidden lg:col-span-2 border border-black/8 rounded-sm overflow-hidden">
+                    <div className="px-4 py-3 bg-[#f9fafb] border-b border-black/8">
+                      <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.07em]">Your Customer Success Manager</span>
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[12px] font-bold shrink-0"
+                          style={{ background: 'linear-gradient(135deg, #0051D5, #003CA6)' }}>
+                          {mockContact.avatar}
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-semibold text-black">{mockContact.name}</p>
+                          <p className="text-[11px] text-[#86868b]">{mockContact.title}</p>
+                        </div>
+                        <div className="ml-auto flex items-center gap-1 text-[9px] font-semibold text-[#16a34a] bg-[#dcfce7] px-2 py-0.5 rounded-full">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" /> Online
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <a href={`mailto:${mockContact.email}`}
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold bg-[#007AFF] text-white rounded-sm hover:bg-[#0051D5] transition-colors">
+                          <Mail size={11} /> Email
+                        </a>
+                        <a href={`https://wa.me/${mockContact.whatsapp}`} target="_blank" rel="noopener noreferrer"
+                          className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold border border-black/10 text-black rounded-sm hover:bg-[#f5f5f7] transition-colors">
+                          <MessageSquare size={11} /> WhatsApp
+                        </a>
+                      </div>
                     </div>
                   </div>
-                  {expandedHolders.includes(p.id) && (
-                    <div
-                      onClick={(e) => e.stopPropagation()}
-                      className="border-t border-black/6 bg-white px-4 py-3 space-y-2 text-[11px]"
-                    >
-                      <p className="font-semibold text-zinc-500 text-[10px] uppercase tracking-wider mb-1">License Holders ({p.licenses} total)</p>
-                      <div className="divide-y divide-black/4 max-h-[150px] overflow-y-auto pr-1">
-                        {p.holders.map((h, i) => (
-                          <div key={i} className="py-1.5 flex items-center justify-between gap-3 text-zinc-700">
-                            <div>
-                              <p className="font-semibold text-black">{h.name}</p>
-                              <p className="text-[10px] text-zinc-400 font-mono">{h.email}</p>
-                            </div>
-                            <span className="text-[9px] bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded-full font-medium shrink-0">
-                              {h.role}
-                            </span>
+                </div>
+              )}
+
+              {/* ─── PURCHASES ─── */}
+              {tab === 'purchases' && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[12px] text-[#86868b]">{mockPurchases.length} active subscriptions</p>
+                    <Link href="/software" onClick={onClose}
+                      className="text-[12px] font-semibold text-[#007AFF] hover:text-[#0051D5] flex items-center gap-1">
+                      Browse more <ArrowRight size={11} />
+                    </Link>
+                  </div>
+
+                  {mockPurchases.map(p => (
+                    <div key={p.id} className="border border-black/8 rounded-sm overflow-hidden hover:border-black/16 hover:shadow-sm transition-all group">
+                      <div
+                        className="flex items-center gap-4 px-5 py-4 cursor-pointer"
+                        onClick={() => { onClose(); router.push(p.type === 'bundle' ? `/bundles/${p.slug}` : `/software/product/${p.slug}`); }}
+                      >
+                        <div className="w-11 h-11 rounded-sm bg-[#f5f5f7] border border-black/8 flex items-center justify-center shrink-0">
+                          <span className="text-[12px] font-bold text-black">{p.logo}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <p className="text-[14px] font-semibold text-black group-hover:text-[#007AFF] transition-colors truncate">{p.name}</p>
+                            <StatusBadge status={p.status} />
                           </div>
-                        ))}
+                          <p className="text-[12px] text-[#86868b]">
+                            {p.vendor} · {p.plan} · {p.licenses} {p.type === 'bundle' ? 'bundle' : 'users'} · {p.department}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-[15px] font-semibold text-black">{p.price}</p>
+                          <p className="text-[11px] text-[#86868b]">{p.billing}</p>
+                        </div>
                       </div>
-                      {p.licenses > p.holders.length && (
-                        <p className="text-[10px] text-zinc-400 italic pt-1 border-t border-zinc-100">
-                          + {p.licenses - p.holders.length} unassigned licenses remaining
-                        </p>
+
+                      <div className="border-t border-black/6 px-5 py-2.5 flex items-center justify-between bg-[#f9fafb]">
+                        <div className="text-[11px] text-[#86868b] flex items-center gap-3">
+                          {p.status === 'Activating' ? (
+                            <span className="flex items-center gap-1 text-[#d97706]">
+                              <Clock size={10} /> Activation in progress
+                            </span>
+                          ) : (
+                            <>
+                              <span>Activated {p.activatedOn}</span>
+                              <span className="text-[#c7c7cc]">·</span>
+                              <span>Renews {p.nextRenewal}</span>
+                            </>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => toggleHolders(p.id)}
+                          className="flex items-center gap-1 text-[11px] font-semibold text-[#007AFF] hover:text-[#0051D5] bg-[#007AFF]/5 hover:bg-[#007AFF]/10 px-2 py-0.5 rounded-sm transition-colors">
+                          Holders
+                          <ChevronDown size={10} className={`transition-transform ${expandedHolders.includes(p.id) ? 'rotate-180' : ''}`} />
+                        </button>
+                      </div>
+
+                      {expandedHolders.includes(p.id) && (
+                        <div className="border-t border-black/6 bg-white px-5 py-3 space-y-2">
+                          <p className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider mb-2">
+                            License Holders ({p.licenses} total)
+                          </p>
+                          <div className="divide-y divide-black/4">
+                            {p.holders.map((h, i) => (
+                              <div key={i} className="py-2 flex items-center justify-between gap-3">
+                                <div>
+                                  <p className="text-[12px] font-semibold text-black">{h.name}</p>
+                                  <p className="text-[10px] text-[#86868b] font-mono">{h.email}</p>
+                                </div>
+                                <span className="text-[10px] bg-[#f5f5f7] text-[#555] px-2 py-0.5 rounded-sm font-medium shrink-0">{h.role}</span>
+                              </div>
+                            ))}
+                          </div>
+                          {p.licenses > p.holders.length && (
+                            <p className="text-[10px] text-[#86868b] italic pt-1 border-t border-black/6">
+                              + {p.licenses - p.holders.length} unassigned licenses remaining
+                            </p>
+                          )}
+                        </div>
                       )}
                     </div>
+                  ))}
+
+                  {/* Spend summary */}
+                  <div className="border border-[#007AFF]/15 bg-[#eff6ff] rounded-sm p-5 flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-semibold text-[#007AFF] mb-1">Monthly spend</p>
+                      <p className="text-[28px] font-semibold text-black">$1,520</p>
+                      <p className="text-[12px] text-[#86868b]">across all active subscriptions</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[14px] font-semibold text-[#16a34a]">Saving $680/mo</p>
+                      <p className="text-[11px] text-[#86868b]">vs list prices</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ─── CART ─── */}
+              {tab === 'cart' && (
+                <div className="space-y-4">
+                  {cartItems.length === 0 ? (
+                    <div className="text-center py-16 border border-dashed border-black/10 rounded-sm">
+                      <ShoppingCart size={32} className="text-[#c7c7cc] mx-auto mb-3" strokeWidth={1.2} />
+                      <p className="text-[14px] font-semibold text-black mb-1">Your cart is empty</p>
+                      <p className="text-[12px] text-[#86868b] mb-4">Browse software or bundles to add items</p>
+                      <Link href="/software" onClick={onClose}
+                        className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#007AFF] hover:text-[#0051D5] transition-colors">
+                        Browse Software <ArrowRight size={11} />
+                      </Link>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <p className="text-[12px] text-[#86868b]">{cartItems.length} item{cartItems.length !== 1 ? 's' : ''} in your cart</p>
+                        <Link href="/software" onClick={onClose}
+                          className="text-[12px] font-semibold text-[#007AFF] hover:text-[#0051D5] flex items-center gap-1">
+                          Add more <ArrowRight size={11} />
+                        </Link>
+                      </div>
+
+                      {cartItems.map(item => (
+                        <div key={item.id} className="border border-black/8 rounded-sm overflow-hidden hover:border-black/16 transition-all group">
+                          <div className="flex items-center gap-4 px-5 py-4">
+                            <div className="w-11 h-11 rounded-sm bg-[#f5f5f7] border border-black/8 flex items-center justify-center shrink-0">
+                              <span className="text-[12px] font-bold text-black">{item.logo}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <p className="text-[14px] font-semibold text-black truncate">{item.name}</p>
+                                {item.type === 'bundle' && (
+                                  <span className="text-[9px] font-bold bg-[#007AFF] text-white px-1.5 py-0.5 rounded-sm shrink-0">BUNDLE</span>
+                                )}
+                              </div>
+                              <p className="text-[12px] text-[#86868b]">
+                                {item.vendor} · {item.plan} · {item.licenses} {item.type === 'bundle' ? 'bundle' : `user${item.licenses !== 1 ? 's' : ''}`} · {item.category}
+                              </p>
+                              <p className="text-[10px] text-[#c7c7cc] mt-0.5">Added {item.addedOn}</p>
+                            </div>
+                            <div className="text-right shrink-0 mr-2">
+                              <p className="text-[15px] font-semibold text-black">${item.price}<span className="text-[11px] text-[#86868b] font-normal">/mo</span></p>
+                              {item.originalPrice > item.price && (
+                                <div className="flex items-center justify-end gap-1.5 mt-0.5">
+                                  <p className="text-[10px] text-[#86868b] line-through">${item.originalPrice}</p>
+                                  <span className="text-[9px] font-bold bg-[#dcfce7] text-[#16a34a] px-1 py-0.5 rounded-sm">{item.discountPct}% off</span>
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => removeFromCart(item.id)}
+                              className="w-8 h-8 flex items-center justify-center rounded-sm text-[#c7c7cc] hover:text-red-500 hover:bg-red-50 transition-colors shrink-0">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+
+                          <div className="border-t border-black/6 px-5 py-2.5 flex items-center justify-between bg-[#f9fafb]">
+                            <span className="text-[11px] text-[#86868b]">{item.billing} billing</span>
+                            <Link
+                              href={item.type === 'bundle' ? `/checkout?bundle=${item.slug}` : `/checkout?product=${item.slug}&price=${item.price}&billing=${item.billing.toLowerCase()}`}
+                              onClick={onClose}
+                              className="flex items-center gap-1 text-[11px] font-semibold text-[#007AFF] hover:text-[#0051D5] transition-colors">
+                              Checkout <ChevronRight size={10} />
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Cart summary + checkout CTA */}
+                      <div className="border border-black/8 rounded-sm p-5 bg-[#f9fafb]">
+                        <div className="flex items-center justify-between mb-4">
+                          <p className="text-[13px] font-semibold text-black">Order summary</p>
+                        </div>
+                        <div className="space-y-2 mb-4">
+                          {cartItems.map(item => (
+                            <div key={item.id} className="flex items-center justify-between text-[12px]">
+                              <span className="text-[#555]">{item.name} ({item.plan})</span>
+                              <span className="font-semibold text-black">${item.price}/mo</span>
+                            </div>
+                          ))}
+                          <div className="border-t border-black/8 pt-2 flex items-center justify-between">
+                            <span className="text-[13px] font-semibold text-black">Total</span>
+                            <span className="text-[16px] font-semibold text-black">${cartTotal}/mo</span>
+                          </div>
+                        </div>
+                        <Link
+                          href={`/checkout?product=${cartItems[0]?.slug}&price=${cartItems[0]?.price}&billing=${cartItems[0]?.billing?.toLowerCase()}`}
+                          onClick={onClose}
+                          className="w-full flex items-center justify-center gap-2 py-3 bg-[#007AFF] hover:bg-[#0051D5] text-white text-[13px] font-semibold rounded-sm transition-colors">
+                          Proceed to Checkout <ArrowRight size={13} />
+                        </Link>
+                      </div>
+                    </>
                   )}
                 </div>
-              ))}
+              )}
 
-              {/* Spend summary */}
-              <div className="border border-[#007AFF]/15 bg-[#eff6ff] rounded-sm p-4">
-                <p className="text-[11px] font-semibold text-[#007AFF] mb-2">Monthly spend summary</p>
-                <div className="flex items-center justify-between">
+              {/* ─── REPORTS ─── */}
+              {tab === 'reports' && (
+                <div className="space-y-6">
                   <div>
-                    <p className="text-[22px] font-semibold text-black">$1,520</p>
-                    <p className="text-[11px] text-[#86868b]">/ month across all products</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[13px] font-semibold text-[#16a34a]">Saving $680/mo</p>
-                    <p className="text-[10px] text-[#86868b]">vs list prices</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ─── REPORTS TAB ─── */}
-          {tab === 'reports' && (
-            <div className="p-5 space-y-5">
-
-              {/* RFP Reports */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center"
-                    style={{ background: 'linear-gradient(135deg, #007AFF, #0051D5)' }}>
-                    <FileText size={12} className="text-white" />
-                  </div>
-                  <p className="text-[12px] font-semibold text-black">Tech Requirement Reports</p>
-                  <span className="text-[10px] font-semibold bg-[#f5f5f7] text-[#86868b] px-2 py-0.5 rounded-full ml-auto">{mockRfpReports.length} reports</span>
-                </div>
-                <div className="space-y-3">
-                  {mockRfpReports.map(r => (
-                    <div key={r.id} className="border border-black/8 rounded-sm p-4 hover:border-black/16 transition-colors">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <p className="text-[13px] font-semibold text-black leading-tight">{r.title}</p>
-                        <StatusBadge status={r.status} />
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-7 h-7 rounded-sm flex items-center justify-center bg-[#007AFF]">
+                        <FileText size={13} className="text-white" />
                       </div>
-                      <p className="text-[11px] text-[#555] leading-snug mb-3">{r.summary}</p>
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {r.matched.map(m => (
-                          <span key={m} className="text-[10px] bg-[#f5f5f7] text-[#555] px-1.5 py-0.5 rounded-sm">{m}</span>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 text-[10px] text-[#86868b]">
-                          <span>{r.date}</span>
-                          <span className="font-semibold text-[#007AFF]">Match: {r.score}</span>
-                        </div>
-                        <button className="flex items-center gap-1 text-[11px] font-semibold text-[#007AFF] hover:text-[#0051D5]">
-                          <Download size={10} /> Download RFP
-                        </button>
-                      </div>
+                      <p className="text-[13px] font-semibold text-black">Tech Requirement Reports</p>
+                      <span className="ml-auto text-[10px] font-semibold bg-[#f5f5f7] text-[#86868b] px-2 py-0.5 rounded-full">{mockRfpReports.length} reports</span>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t border-black/6" />
-
-              {/* Strategy Reports */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center"
-                    style={{ background: 'linear-gradient(135deg, #0051D5, #003CA6)' }}>
-                    <BarChart2 size={12} className="text-white" />
-                  </div>
-                  <p className="text-[12px] font-semibold text-black">Tech Strategy Reports</p>
-                  <span className="text-[10px] font-semibold bg-[#f5f5f7] text-[#86868b] px-2 py-0.5 rounded-full ml-auto">{mockStrategyReports.length} report</span>
-                </div>
-                <div className="space-y-3">
-                  {mockStrategyReports.map(r => (
-                    <div key={r.id} className="border border-black/8 rounded-sm p-4 hover:border-black/16 transition-colors">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <p className="text-[13px] font-semibold text-black leading-tight">{r.title}</p>
-                        <StatusBadge status={r.status} />
-                      </div>
-                      <p className="text-[11px] text-[#555] leading-snug mb-3">{r.summary}</p>
-                      <div className="space-y-1 mb-3">
-                        {r.phases.map((ph, i) => (
-                          <div key={ph} className="flex items-center gap-2 text-[11px] text-[#555]">
-                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
-                              style={{ backgroundColor: i === 0 ? '#007AFF' : i === 1 ? '#0051D5' : '#000' }}>
-                              {i + 1}
-                            </span>
-                            {ph}
+                    <div className="space-y-3">
+                      {mockRfpReports.map(r => (
+                        <div key={r.id} className="border border-black/8 rounded-sm p-5 hover:border-black/16 transition-colors">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <p className="text-[14px] font-semibold text-black">{r.title}</p>
+                            <StatusBadge status={r.status} />
                           </div>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-[#86868b]">{r.date}</span>
-                        <button className="flex items-center gap-1 text-[11px] font-semibold text-[#007AFF] hover:text-[#0051D5]">
-                          <Download size={10} /> Download Roadmap
-                        </button>
-                      </div>
+                          <p className="text-[12px] text-[#555] leading-snug mb-3">{r.summary}</p>
+                          <div className="flex flex-wrap gap-1.5 mb-3">
+                            {r.matched.map(m => <span key={m} className="text-[10px] bg-[#f5f5f7] text-[#555] px-2 py-0.5 rounded-sm">{m}</span>)}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-[11px] text-[#86868b]">
+                              <span>{r.date}</span>
+                              <span className="font-semibold text-[#007AFF]">Match: {r.score}</span>
+                            </div>
+                            <button className="flex items-center gap-1 text-[12px] font-semibold text-[#007AFF] hover:text-[#0051D5]">
+                              <Download size={11} /> Download RFP
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
 
-              {/* CTA to open builders */}
-              <div className="border border-black/8 rounded-sm p-4 bg-[#f9fafb] text-center">
-                <p className="text-[12px] font-semibold text-black mb-1">Generate a new report</p>
-                <p className="text-[11px] text-[#86868b] mb-3">Use our AI builders to create RFPs or tech roadmaps instantly</p>
-                <div className="flex gap-2">
-                  <Link href="/software?mode=requirements" onClick={onClose}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold bg-[#007AFF] text-white rounded-sm hover:bg-[#0051D5] transition-colors">
-                    <FileText size={11} /> RFP Builder
-                  </Link>
-                  <Link href="/software?mode=strategy" onClick={onClose}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-semibold border border-black/10 text-black rounded-sm hover:bg-[#f0f0f0] transition-colors">
-                    <BarChart2 size={11} /> Strategy Builder
-                  </Link>
+                  <div className="border-t border-black/8" />
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-7 h-7 rounded-sm flex items-center justify-center bg-[#0051D5]">
+                        <BarChart2 size={13} className="text-white" />
+                      </div>
+                      <p className="text-[13px] font-semibold text-black">Tech Strategy Reports</p>
+                      <span className="ml-auto text-[10px] font-semibold bg-[#f5f5f7] text-[#86868b] px-2 py-0.5 rounded-full">{mockStrategyReports.length} report</span>
+                    </div>
+                    <div className="space-y-3">
+                      {mockStrategyReports.map(r => (
+                        <div key={r.id} className="border border-black/8 rounded-sm p-5 hover:border-black/16 transition-colors">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <p className="text-[14px] font-semibold text-black">{r.title}</p>
+                            <StatusBadge status={r.status} />
+                          </div>
+                          <p className="text-[12px] text-[#555] leading-snug mb-3">{r.summary}</p>
+                          <div className="space-y-1.5 mb-3">
+                            {r.phases.map((ph, i) => (
+                              <div key={ph} className="flex items-center gap-2 text-[12px] text-[#555]">
+                                <span className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
+                                  style={{ backgroundColor: i === 0 ? '#007AFF' : i === 1 ? '#0051D5' : '#000' }}>
+                                  {i + 1}
+                                </span>
+                                {ph}
+                              </div>
+                            ))}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] text-[#86868b]">{r.date}</span>
+                            <button className="flex items-center gap-1 text-[12px] font-semibold text-[#007AFF] hover:text-[#0051D5]">
+                              <Download size={11} /> Download Roadmap
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="border border-black/8 rounded-sm p-5 bg-[#f9fafb] text-center">
+                    <p className="text-[13px] font-semibold text-black mb-1">Generate a new report</p>
+                    <p className="text-[12px] text-[#86868b] mb-4">Use our AI builders to create RFPs or tech roadmaps instantly</p>
+                    <div className="flex gap-3 max-w-sm mx-auto">
+                      <Link href="/software?mode=requirements" onClick={onClose}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[12px] font-semibold bg-[#007AFF] text-white rounded-sm hover:bg-[#0051D5] transition-colors">
+                        <FileText size={12} /> RFP Builder
+                      </Link>
+                      <Link href="/software?mode=strategy" onClick={onClose}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[12px] font-semibold border border-black/10 text-black rounded-sm hover:bg-[#f0f0f0] transition-colors">
+                        <BarChart2 size={12} /> Strategy Builder
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* ─── SUPPORT ─── */}
+              {tab === 'support' && (
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-[13px] font-semibold text-black">Support Tickets</p>
+                      <button className="flex items-center gap-1 text-[12px] font-semibold text-[#007AFF] hover:text-[#0051D5]">
+                        <Ticket size={11} /> New ticket
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      {mockTickets.map(t => (
+                        <div key={t.id} className="border border-black/8 rounded-sm p-5 hover:border-black/16 transition-colors">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <p className="text-[13px] font-semibold text-black">{t.subject}</p>
+                            <StatusBadge status={t.status} />
+                          </div>
+                          <div className="flex items-center gap-3 text-[11px] text-[#86868b] mt-2">
+                            <span className="font-mono">{t.id}</span>
+                            <span>·</span>
+                            <span>{t.priority} priority</span>
+                            <span>·</span>
+                            <span>Updated {t.lastUpdate}</span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2 text-[12px] text-[#555]">
+                            <User size={11} className="text-[#86868b]" /> Assigned to {t.agent}
+                          </div>
+                          {t.status === 'Open' && (
+                            <button className="mt-2 text-[12px] font-semibold text-[#007AFF] hover:text-[#0051D5] flex items-center gap-1">
+                              View thread <ChevronRight size={11} />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="border-t border-black/8" />
+
+                  <div>
+                    <p className="text-[13px] font-semibold text-black mb-4">Zain AI Chat History</p>
+                    <div className="space-y-2">
+                      {mockChats.map((c, i) => (
+                        <div key={i} className="flex items-start gap-3 border border-black/8 rounded-sm p-4">
+                          <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center shrink-0">
+                            <MessageSquare size={13} className="text-white" />
+                          </div>
+                          <div>
+                            <p className="text-[13px] text-black">{c.summary}</p>
+                            <p className="text-[10px] text-[#86868b] mt-1">{c.date} · {c.bot}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="border-t border-black/8" />
+
+                  <div className="border border-black/8 rounded-sm p-5">
+                    <p className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.07em] mb-4">Reach Support</p>
+                    <div className="space-y-3 mb-4">
+                      {[
+                        { icon: <Mail size={13} />, label: 'Email', value: 'support@zoftware.com', href: 'mailto:support@zoftware.com' },
+                        { icon: <Phone size={13} />, label: 'Toll-free', value: '800 ZOFT (9638)', href: 'tel:8009638' },
+                        { icon: <MessageSquare size={13} />, label: 'WhatsApp', value: '+971 55 000 0000', href: 'https://wa.me/971550000000' },
+                      ].map(({ icon, label, value, href }) => (
+                        <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
+                          className="flex items-center gap-3 hover:text-[#007AFF] transition-colors group">
+                          <span className="text-[#86868b] group-hover:text-[#007AFF]">{icon}</span>
+                          <span className="text-[12px] text-[#86868b] w-20 shrink-0">{label}</span>
+                          <span className="text-[13px] font-medium text-black group-hover:text-[#007AFF]">{value}</span>
+                        </a>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-[#86868b] bg-[#f5f5f7] rounded-sm px-3 py-2">
+                      <Clock size={11} />
+                      Support hours: Sun–Thu 9am–6pm GST · Priority SLA: 4 hours
+                    </div>
+                  </div>
+                </div>
+              )}
+
             </div>
-          )}
-
-          {/* ─── SUPPORT TAB ─── */}
-          {tab === 'support' && (
-            <div className="p-5 space-y-5">
-
-              {/* Open tickets */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[12px] font-semibold text-black">Support Tickets</p>
-                  <button className="flex items-center gap-1 text-[11px] font-semibold text-[#007AFF] hover:text-[#0051D5]">
-                    <Ticket size={10} /> New ticket
-                  </button>
-                </div>
-                <div className="space-y-3">
-                  {mockTickets.map(t => (
-                    <div key={t.id} className="border border-black/8 rounded-sm p-4 hover:border-black/16 transition-colors">
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
-                        <p className="text-[12px] font-semibold text-black leading-tight">{t.subject}</p>
-                        <StatusBadge status={t.status} />
-                      </div>
-                      <div className="flex items-center gap-3 text-[10px] text-[#86868b] mt-2">
-                        <span className="font-mono">{t.id}</span>
-                        <span className="text-[#c7c7cc]">·</span>
-                        <span>{t.priority} priority</span>
-                        <span className="text-[#c7c7cc]">·</span>
-                        <span>Updated {t.lastUpdate}</span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-2 text-[11px] text-[#555]">
-                        <User size={10} className="text-[#86868b]" /> Assigned to {t.agent}
-                      </div>
-                      {t.status === 'Open' && (
-                        <button className="mt-2 text-[11px] font-semibold text-[#007AFF] hover:text-[#0051D5] flex items-center gap-1">
-                          View thread <ChevronRight size={10} />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t border-black/6" />
-
-              {/* Chat history */}
-              <div>
-                <p className="text-[12px] font-semibold text-black mb-3">Zain AI Chat History</p>
-                <div className="space-y-2">
-                  {mockChats.map((c, i) => (
-                    <div key={i} className="flex items-start gap-3 border border-black/8 rounded-sm p-3">
-                      <div className="w-7 h-7 rounded-full bg-black flex items-center justify-center shrink-0">
-                        <MessageSquare size={12} className="text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[12px] text-black leading-snug">{c.summary}</p>
-                        <p className="text-[10px] text-[#86868b] mt-1">{c.date} · {c.bot}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t border-black/6" />
-
-              {/* Contact block */}
-              <div className="border border-black/8 rounded-sm p-4">
-                <p className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.07em] mb-3">Reach Support</p>
-                <div className="space-y-2 mb-3">
-                  {[
-                    { icon: <Mail size={12} />, label: 'Email', value: 'support@zoftware.com', href: 'mailto:support@zoftware.com' },
-                    { icon: <Phone size={12} />, label: 'Toll-free', value: '800 ZOFT (9638)', href: 'tel:8009638' },
-                    { icon: <MessageSquare size={12} />, label: 'WhatsApp', value: '+971 55 000 0000', href: 'https://wa.me/971550000000' },
-                  ].map(({ icon, label, value, href }) => (
-                    <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
-                      className="flex items-center gap-3 hover:text-[#007AFF] transition-colors group">
-                      <span className="text-[#86868b] group-hover:text-[#007AFF] transition-colors">{icon}</span>
-                      <span className="text-[11px] text-[#86868b] w-16 shrink-0">{label}</span>
-                      <span className="text-[12px] font-medium text-black group-hover:text-[#007AFF] transition-colors">{value}</span>
-                    </a>
-                  ))}
-                </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-[#86868b] bg-[#f5f5f7] rounded-sm px-3 py-2">
-                  <Clock size={10} />
-                  <span>Support hours: Sun–Thu 9am–6pm GST · Priority SLA: 4 hours</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-        </div>
-
-        {/* ── Panel footer ── */}
-        <div className="shrink-0 border-t border-black/8 px-5 py-3 bg-[#f9fafb] flex items-center justify-between">
-          <p className="text-[10px] text-[#86868b]">Member since {mockUser.memberSince}</p>
-          <button className="text-[11px] font-semibold text-[#86868b] hover:text-black transition-colors flex items-center gap-1">
-            <ExternalLink size={10} /> Full account settings
-          </button>
+          </main>
         </div>
       </div>
     </>
