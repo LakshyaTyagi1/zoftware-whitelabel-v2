@@ -102,7 +102,15 @@ function SoftwareContent() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-white/5 border border-white/10 p-0.5 rounded-lg">
+            <Link href="/software?tool=requirements"
+              className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-white/15 text-white/80 hover:text-white hover:border-white/30 hover:bg-white/8 transition-all whitespace-nowrap">
+              <FileText size={11} /> Requirements
+            </Link>
+            <Link href="/software?tool=strategy"
+              className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-white/15 text-white/80 hover:text-white hover:border-white/30 hover:bg-white/8 transition-all whitespace-nowrap">
+              <BarChart2 size={11} /> Strategy
+            </Link>
+            <div className="flex items-center gap-1 bg-white/5 border border-white/10 p-0.5 rounded-lg ml-1">
               {(['USD','AED'] as const).map(c => (
                 <button key={c} onClick={() => setCurrency(c)}
                   className={`px-3 py-1 text-[11px] font-bold rounded-md transition-all ${currency === c ? 'bg-white text-black' : 'text-white/50 hover:text-white'}`}>

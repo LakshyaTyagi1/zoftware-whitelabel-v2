@@ -343,10 +343,10 @@ export default function ReportPage({ params }: { params: Promise<{ type: string 
         <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-xl border-b border-black/8">
           <div className="max-w-[900px] mx-auto px-4 sm:px-6 h-13 flex items-center justify-between gap-4 py-3">
             <div className="flex items-center gap-3">
-              <button onClick={() => setPhase('wizard')}
+              <Link href="/software"
                 className="flex items-center gap-1.5 text-[12px] text-muted hover:text-black transition-colors">
-                <ArrowLeft size={13} /> Edit answers
-              </button>
+                <ArrowLeft size={13} /> Back to Software
+              </Link>
               <span className="text-[#e5e5e7]">|</span>
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: accentGrad }}>
