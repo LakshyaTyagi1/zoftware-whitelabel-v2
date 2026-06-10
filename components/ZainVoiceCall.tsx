@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import type Vapi from '@vapi-ai/web';
 import { MessageSquare, Mic, MicOff, Phone, PhoneOff, Volume2, VolumeOff, X } from 'lucide-react';
 import ZainBotIcon from './ZainBotIcon';
@@ -111,6 +111,7 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
   const [errorMessage, setErrorMessage] = useState(isVoiceConfigured ? '' : 'Voice assistant is not configured yet.');
 
   const vapiRef = useRef<Vapi | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const messageIdRef = useRef(0);
   const accumulatedTranscriptRef = useRef<{ role: TranscriptRole; text: string } | null>(null);
   const mutedAudioElementsRef = useRef<Array<{ audio: HTMLAudioElement; muted: boolean }>>([]);
@@ -133,11 +134,23 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
     accumulatedTranscriptRef.current = null;
   }, []);
 
+  const clearTranscriptBuffer = useCallback(() => {
+    if (transcriptTimeoutRef.current) {
+      clearTimeout(transcriptTimeoutRef.current);
+      transcriptTimeoutRef.current = null;
+    }
+    accumulatedTranscriptRef.current = null;
+  }, []);
+
   const restoreMutedAudio = useCallback(() => {
     mutedAudioElementsRef.current.forEach(({ audio, muted }) => {
       if (audio.isConnected) audio.muted = muted;
     });
     mutedAudioElementsRef.current = [];
+  }, []);
+
+  useEffect(() => {
+    closeButtonRef.current?.focus();
   }, []);
 
   useEffect(() => {
@@ -208,6 +221,7 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
         vapi.on('speech-end', () => setIsSpeaking(false));
         vapi.on('error', error => {
           console.error('Vapi voice call failed', error);
+          clearTranscriptBuffer();
           restoreMutedAudio();
           setErrorMessage(extractErrorMessage(error));
           setCallStatus('idle');
@@ -226,14 +240,14 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
 
     return () => {
       disposed = true;
-      if (transcriptTimeoutRef.current) clearTimeout(transcriptTimeoutRef.current);
+      clearTranscriptBuffer();
       if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current);
       restoreMutedAudio();
       vapiRef.current?.removeAllListeners();
       void vapiRef.current?.stop().catch(() => undefined);
       vapiRef.current = null;
     };
-  }, [commitAccumulatedTranscript, restoreMutedAudio]);
+  }, [clearTranscriptBuffer, commitAccumulatedTranscript, restoreMutedAudio]);
 
   useEffect(() => {
     if (callStatus !== 'active') return undefined;
@@ -258,6 +272,7 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
     }
 
     const context = getCallContext();
+    clearTranscriptBuffer();
     setErrorMessage('');
     setMessages([]);
     setShowTranscript(true);
@@ -327,6 +342,13 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
     setIsVolumeMuted(nextMuted);
   };
 
+  const handleDialogKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeCall();
+    }
+  };
+
   const activeCall = callStatus === 'connecting' || callStatus === 'active';
   const canStart = callStatus === 'idle' || callStatus === 'ended';
   const statusText =
@@ -349,6 +371,7 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="zain-voice-title"
+      onKeyDown={handleDialogKeyDown}
       className="fixed inset-0 z-[60] flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.76)', backdropFilter: 'blur(14px)' }}
     >
@@ -382,6 +405,7 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
 
           <button
             type="button"
+            ref={closeButtonRef}
             onClick={closeCall}
             className="flex h-8 w-8 items-center justify-center rounded-full text-white/55 transition-colors hover:bg-white/10 hover:text-white"
             aria-label="Close voice call"
@@ -501,15 +525,6 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
           <div className={`${showTranscript ? 'block' : 'hidden'} border-t border-white/10 bg-black/18 p-4 lg:block lg:border-l lg:border-t-0`}>
             <div className="mb-3 flex items-center justify-between">
               <p className="text-[12px] font-semibold text-white/70">Transcript</p>
-              <button
-                type="button"
-                onClick={() => setShowTranscript(value => !value)}
-                disabled={messages.length === 0}
-                className="hidden h-7 w-7 items-center justify-center rounded-full text-white/45 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 lg:flex"
-                aria-label={showTranscript ? 'Hide transcript' : 'Show transcript'}
-              >
-                <MessageSquare size={14} />
-              </button>
             </div>
 
             <div className="zain-voice-scroll h-[220px] space-y-3 overflow-y-auto pr-1 lg:h-[414px]">
