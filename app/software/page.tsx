@@ -398,65 +398,84 @@ function SoftwareContent() {
       </div>
       <style>{`@keyframes shrink{from{width:100%}to{width:0%}}`}</style>
 
-      {/* ── Tool popup modal ── */}
-    {activeTool && TOOL_CONFIG[activeTool] && (() => {
-      const cfg = TOOL_CONFIG[activeTool];
-      return (
-        <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCloseRequest} />
-
-          {/* Panel */}
-          <div className="relative bg-white flex flex-col w-full h-full sm:max-w-[min(96vw,1100px)] sm:h-[92vh] sm:rounded-2xl shadow-2xl overflow-hidden">
-
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-100 bg-zinc-50 shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: cfg.accent }}>
-                  {cfg.icon}
+      {/* ── Smart Search: full-screen centered popup ── */}
+      {activeTool === 'search' && (() => {
+        const cfg = TOOL_CONFIG['search'];
+        return (
+          <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={handleConfirmedClose} />
+            <div className="relative bg-white flex flex-col w-full h-full sm:max-w-[min(96vw,1100px)] sm:h-[92vh] sm:rounded-2xl shadow-2xl overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-100 bg-zinc-50 shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: cfg.accent }}>
+                    {cfg.icon}
+                  </div>
+                  <span className="text-[14px] font-semibold text-zinc-900">{cfg.label}</span>
                 </div>
-                <span className="text-[14px] font-semibold text-zinc-900">{cfg.label}</span>
+                <button onClick={handleConfirmedClose}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-800 hover:bg-zinc-200 transition-colors">
+                  <X size={15} />
+                </button>
               </div>
-              <button onClick={handleCloseRequest}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-800 hover:bg-zinc-200 transition-colors">
-                <X size={15} />
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 overflow-hidden">
-              {activeTool === 'search'       && <SmartSearchPopup onClose={handleCloseRequest} />}
-              {activeTool === 'requirements' && <TechRequirementBuilder onClose={handleConfirmedClose} />}
-              {activeTool === 'strategy'     && <TechStrategyBuilder onClose={handleConfirmedClose} />}
+              <div className="flex-1 overflow-hidden">
+                <SmartSearchPopup onClose={handleConfirmedClose} />
+              </div>
             </div>
           </div>
+        );
+      })()}
 
-          {/* Close confirmation dialog */}
-          {showCloseConfirm && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-              <div className="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">
-                <p className="text-[16px] font-semibold text-zinc-900 mb-1.5">
-                  Close {cfg.label}?
-                </p>
-                <p className="text-[13px] text-zinc-500 mb-5 leading-relaxed">
-                  Your current progress will be lost if you close now.
-                </p>
-                <div className="flex gap-2.5">
-                  <button onClick={() => setShowCloseConfirm(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-zinc-200 text-[13px] font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors">
-                    Continue working
-                  </button>
-                  <button onClick={handleConfirmedClose}
-                    className="flex-1 py-2.5 rounded-xl bg-zinc-900 text-white text-[13px] font-semibold hover:bg-black transition-colors">
-                    Close
-                  </button>
+      {/* ── Strategy / Requirements: right-side panel (same width as Zain chatbot) ── */}
+      {(activeTool === 'requirements' || activeTool === 'strategy') && (() => {
+        const cfg = TOOL_CONFIG[activeTool];
+        return (
+          <>
+            <div className="fixed inset-0 z-[60] bg-black/20 backdrop-blur-[1px]" onClick={handleCloseRequest} />
+            <div className="fixed top-0 right-0 h-screen z-[61] flex flex-col bg-white border-l border-black/10 shadow-2xl"
+              style={{ width: 'min(420px, 95vw)' }}>
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-black/8 shrink-0"
+                style={{ background: 'linear-gradient(135deg, #0f0f1e 0%, #1a1a3a 100%)' }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }}>
+                  {cfg.icon}
                 </div>
+                <p className="text-[14px] font-semibold text-white flex-1 leading-none">{cfg.label}</p>
+                <button onClick={handleCloseRequest}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors shrink-0">
+                  <X size={16} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+                {activeTool === 'requirements' && <TechRequirementBuilder onClose={handleConfirmedClose} />}
+                {activeTool === 'strategy'     && <TechStrategyBuilder onClose={handleConfirmedClose} />}
               </div>
             </div>
-          )}
-        </div>
-      );
-    })()}
+
+            {/* Close confirmation */}
+            {showCloseConfirm && (
+              <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                <div className="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">
+                  <p className="text-[16px] font-semibold text-zinc-900 mb-1.5">
+                    Close {cfg.label}?
+                  </p>
+                  <p className="text-[13px] text-zinc-500 mb-5 leading-relaxed">
+                    Your current progress will be lost if you close now.
+                  </p>
+                  <div className="flex gap-2.5">
+                    <button onClick={() => setShowCloseConfirm(false)}
+                      className="flex-1 py-2.5 rounded-xl border border-zinc-200 text-[13px] font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors">
+                      Continue working
+                    </button>
+                    <button onClick={handleConfirmedClose}
+                      className="flex-1 py-2.5 rounded-xl bg-zinc-900 text-white text-[13px] font-semibold hover:bg-black transition-colors">
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        );
+      })()}
     </div>
   );
 }

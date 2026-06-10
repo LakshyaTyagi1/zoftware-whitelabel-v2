@@ -11,8 +11,6 @@ import {
 import { gatewayProducts } from '@/data/gateway-products';
 import ThemeToggle from '@/components/ThemeToggle';
 import ZainChatbot from '@/components/ZainChatbot';
-import TechRequirementBuilder from '@/components/TechRequirementBuilder';
-import TechStrategyBuilder from '@/components/TechStrategyBuilder';
 
 // ── Tool cards ────────────────────────────────────────────────────────────────
 const tools = [
@@ -615,8 +613,6 @@ function SmartSearchModal({ onClose }: { onClose: () => void }) {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function SoftwareGatewayPage() {
-  const [smartSearchOpen, setSmartSearchOpen] = useState(false);
-  const [rightPanel, setRightPanel] = useState<'requirements' | 'strategy' | null>(null);
   const [profileDropdown, setProfileDropdown] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -785,27 +781,6 @@ export default function SoftwareGatewayPage() {
                   </a>
                 );
               }
-              if (tool.label === 'Smart Search') {
-                return (
-                  <button key={tool.label} onClick={() => setSmartSearchOpen(true)} className={shared}>
-                    {inner}
-                  </button>
-                );
-              }
-              if (tool.label === 'Tech Strategy Builder') {
-                return (
-                  <button key={tool.label} onClick={() => setRightPanel('strategy')} className={shared}>
-                    {inner}
-                  </button>
-                );
-              }
-              if (tool.label === 'Tech Requirement Builder') {
-                return (
-                  <button key={tool.label} onClick={() => setRightPanel('requirements')} className={shared}>
-                    {inner}
-                  </button>
-                );
-              }
               return (
                 <Link key={tool.label} href={tool.href} className={shared}>
                   {inner}
@@ -842,7 +817,7 @@ export default function SoftwareGatewayPage() {
                       alt={brand.name}
                       width={80}
                       height={24}
-                      className="object-contain opacity-70 hover:opacity-100 transition-opacity"
+                      className="object-contain hover:opacity-80 transition-opacity"
                       style={{ maxHeight: '24px', width: 'auto' }}
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
@@ -858,38 +833,6 @@ export default function SoftwareGatewayPage() {
         </div>
       </section>
 
-      {/* ── Smart Search popup ── */}
-      {smartSearchOpen && <SmartSearchModal onClose={() => setSmartSearchOpen(false)} />}
-
-      {/* ── Right panel for Tech Builders (z-[55] keeps it above FABs at z-50) ── */}
-      {rightPanel && (
-        <>
-          <div className="fixed inset-0 z-[54] bg-black/8 backdrop-blur-[1px]" onClick={() => setRightPanel(null)} />
-          <div className="fixed top-0 right-0 h-screen z-[55] flex flex-col bg-white border-l border-black/10 shadow-2xl transition-transform duration-300 ease-in-out translate-x-0"
-            style={{ width: 'min(420px, 95vw)' }}>
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-black/8 shrink-0"
-              style={{ background: 'linear-gradient(135deg, #0f0f1e 0%, #1a1a3a 100%)' }}>
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }}>
-                {rightPanel === 'requirements'
-                  ? <FileText size={15} className="text-white" />
-                  : <BarChart2 size={15} className="text-white" />}
-              </div>
-              <p className="text-[14px] font-semibold text-white flex-1 leading-none">
-                {rightPanel === 'requirements' ? 'Tech Requirement Builder' : 'Tech Strategy Builder'}
-              </p>
-              <button onClick={() => setRightPanel(null)}
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors shrink-0">
-                <X size={16} />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-              {rightPanel === 'requirements'
-                ? <TechRequirementBuilder onClose={() => setRightPanel(null)} />
-                : <TechStrategyBuilder onClose={() => setRightPanel(null)} />}
-            </div>
-          </div>
-        </>
-      )}
 
       {/* ── Zain chatbot — auto-opens on this page ── */}
       <ZainChatbot defaultOpen={true} />

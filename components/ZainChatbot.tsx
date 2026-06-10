@@ -182,19 +182,21 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
 
   return (
     <>
-      {/* ── FABs ── */}
-      <div className="fixed bottom-6 right-6 flex flex-col items-center gap-3 z-50">
-        <button onClick={() => setOpen(o => !o)} title="Chat with Zain"
-          className="transition-all hover:scale-105 active:scale-95"
-          style={{ filter: open ? 'drop-shadow(0 0 6px var(--color-accent))' : 'drop-shadow(0 4px 14px rgba(0,0,0,0.28))' }}>
-          <img src="/zain-avatar.svg" alt="Zain" className="w-14 h-14 block" />
-        </button>
-        <button onClick={() => setCalling(true)} title="Call Zain"
-          className="w-9 h-9 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
-          style={{ backgroundColor: '#16A34A', boxShadow: '0 4px 10px rgba(22,163,74,0.35)' }}>
-          <Phone size={15} strokeWidth={2} />
-        </button>
-      </div>
+      {/* ── FABs — hidden when drawer is open so they don't overlap the input ── */}
+      {!open && (
+        <div className="fixed bottom-6 right-6 flex flex-col items-center gap-3 z-50">
+          <button onClick={() => setOpen(true)} title="Chat with Zain"
+            className="transition-all hover:scale-105 active:scale-95"
+            style={{ filter: 'drop-shadow(0 4px 14px rgba(0,0,0,0.28))' }}>
+            <img src="/zain-avatar.svg" alt="Zain" className="w-14 h-14 block" />
+          </button>
+          <button onClick={() => setCalling(true)} title="Call Zain"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+            style={{ backgroundColor: '#16A34A', boxShadow: '0 4px 10px rgba(22,163,74,0.35)' }}>
+            <Phone size={15} strokeWidth={2} />
+          </button>
+        </div>
+      )}
 
       {/* ── Scrim ── */}
       {open && (
