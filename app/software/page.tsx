@@ -11,12 +11,16 @@ import { bundles } from '@/data/bundles';
 import { gatewayProducts } from '@/data/gateway-products';
 import { AED_RATE } from '@/data/billing-options';
 
-// ── Unique categories from product catalog ────────────────────────────────
+// ── Curated category filter chips (7 shown + All) ────────────────────────────
 const ALL_CATS = [
-  { slug: 'all', name: 'All Products' },
-  ...Array.from(
-    new Map(gatewayProducts.map(p => [p.categorySlug, { slug: p.categorySlug, name: p.category }])).values()
-  ).sort((a, b) => a.name.localeCompare(b.name)),
+  { slug: 'all',              name: 'All Products' },
+  { slug: 'crm-sales',        name: 'CRM & Sales' },
+  { slug: 'erp',              name: 'ERP' },
+  { slug: 'finance-accounting', name: 'Finance & Accounting' },
+  { slug: 'hr-payroll',       name: 'HR & Payroll' },
+  { slug: 'marketing',        name: 'Marketing' },
+  { slug: 'digital-workspace', name: 'Digital Workspace' },
+  { slug: 'security',         name: 'Security' },
 ];
 
 function StarRow({ rating }: { rating: number }) {

@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import ThemeToggle from '@/components/ThemeToggle';
 import {
-  Search, ChevronDown, ChevronRight, Menu, X, Globe, Phone,
-  ArrowRight, Sparkles, FileText, BarChart2, MessageSquare, Zap,
+  ChevronDown, ChevronRight, Menu, X, Globe, Phone,
+  ArrowRight, MessageSquare, Zap,
   Shield, Users, Building2, ExternalLink, TrendingUp, Star, Package, Check,
-  Eye, EyeOff, Lock, TrendingDown
+  Eye, EyeOff, Lock
 } from 'lucide-react';
 
 // ─── Login credentials (update when real creds are provided) ─────────────────
@@ -95,40 +95,6 @@ const services = [
   { name: 'Mediation', desc: '201 mediation cases handled with AED 241 million total case value — cost-effective dispute resolution for businesses.', href: 'https://www.dubaichambers.com/services?category=277640' },
 ];
 
-const gatewayTools = [
-  {
-    icon: <Search size={20} strokeWidth={1.5} />,
-    label: 'Smart Search',
-    desc: 'Find the right software from 50+ verified products in seconds.',
-    href: '/software?mode=search',
-    color: 'var(--color-accent)',
-    external: false,
-  },
-  {
-    icon: <FileText size={20} strokeWidth={1.5} />,
-    label: 'Tech Requirement Builder',
-    desc: 'Generate a detailed technical requirements document for your procurement.',
-    href: '/software?mode=requirements',
-    color: 'var(--color-accent)',
-    external: false,
-  },
-  {
-    icon: <BarChart2 size={20} strokeWidth={1.5} />,
-    label: 'Tech Strategy Builder',
-    desc: 'Get a full tech strategy and implementation roadmap in under 1 minute.',
-    href: '/software?mode=strategy',
-    color: 'var(--color-accent)',
-    external: false,
-  },
-  {
-    icon: <TrendingDown size={20} strokeWidth={1.5} />,
-    label: 'Cost Optimizer',
-    desc: 'Analyse your current software spend and uncover savings opportunities instantly.',
-    href: 'https://enterprise-level-redesign.vercel.app?autoauth=zv2',
-    color: '#16a34a',
-    external: true,
-  },
-];
 
 export default function DubaiChamberPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -427,168 +393,26 @@ export default function DubaiChamberPage() {
                 </a>
               ))}
 
-              {/* Bottom CTA in hero cards */}
-              <Link href="/software"
-                className="flex items-center justify-between border border-accent/25 bg-accent/6 rounded-sm px-5 py-4 hover:bg-accent/12 hover:border-accent/40 transition-all group">
-                <div>
-                  <p className="text-[14px] font-semibold text-black flex items-center gap-2">
+              {/* Bottom CTA in hero cards — prominent dark card */}
+              <Link href="/software-gateway"
+                className="flex items-center justify-between rounded-sm px-5 py-4 hover:opacity-90 transition-all group relative overflow-hidden"
+                style={{ background: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%)' }}>
+                {/* subtle glow */}
+                <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full opacity-30"
+                  style={{ background: 'radial-gradient(circle, var(--color-accent), transparent 70%)' }} />
+                <div className="relative">
+                  <p className="text-[14px] font-semibold text-white flex items-center gap-2">
                     <Zap size={14} className="text-accent" />
                     Software Gateway
                   </p>
-                  <p className="text-[12px] text-muted mt-0.5">Browse 50+ business software tools</p>
+                  <p className="text-[12px] text-white/50 mt-0.5">AI tools · 50+ verified products</p>
                 </div>
-                <span className="text-[11px] font-semibold text-accent border border-accent/30 px-2.5 py-1 rounded-sm group-hover:bg-accent group-hover:text-white transition-all shrink-0">
+                <span className="relative text-[11px] font-semibold text-white border border-white/20 bg-white/10 px-2.5 py-1 rounded-sm group-hover:bg-accent group-hover:border-accent transition-all shrink-0">
                   Explore →
                 </span>
               </Link>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── SOFTWARE GATEWAY ─────────────────────────────────────── */}
-      <section className="th-section-warm relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
-        {/* Subtle background orb */}
-        <div className="th-section-glow absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-[0.07]"
-          style={{ background: 'radial-gradient(ellipse, #007AFF 0%, transparent 70%)' }} />
-
-        <div className="relative max-w-[1280px] mx-auto px-4 sm:px-6 py-12 sm:py-16 border-b border-black/8">
-          {/* Section header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8">
-            <div>
-              <div className="inline-flex items-center gap-2 bg-accent text-white px-3 py-1.5 rounded-sm text-[10px] font-bold tracking-[0.1em] uppercase mb-4 shadow-sm shadow-accent/20">
-                <Zap size={11} strokeWidth={2.5} /> Software Gateway
-              </div>
-              <h2 className="text-[26px] sm:text-[36px] font-medium text-black tracking-tight leading-[1.1] mb-3">
-                Procure the right software.<br />
-                <span className="text-accent">In minutes, not months.</span>
-              </h2>
-              <p className="text-[13px] font-semibold text-accent mb-2 flex items-center gap-1.5">
-                <Sparkles size={13} strokeWidth={2} />
-                AI-powered digital collaboration hub for business growth
-              </p>
-              <p className="text-[14px] text-[#555] max-w-[460px] leading-[1.7]">
-                Access 50+ verified products across 35 categories — with GCC-exclusive pricing, bundle deals, and AI-powered recommendations built in.
-              </p>
-            </div>
-            <Link href="/software"
-              className="flex items-center gap-2 bg-black text-white px-6 py-3 text-[13px] font-semibold rounded-sm hover:bg-[#222] transition-colors shrink-0 min-h-[44px] whitespace-nowrap self-start sm:self-auto">
-              Browse All Software <ArrowRight size={13} strokeWidth={2} />
-            </Link>
-          </div>
-
-          {/* ── Moving logo strip — actual provided logos + Clearbit fill ── */}
-          <div className="mb-6 overflow-hidden border border-black/6 rounded-sm bg-white py-3.5">
-            <div className="relative">
-              {/* Fade masks */}
-              <div className="th-logo-fade-l absolute left-0 top-0 bottom-0 w-20 z-10 pointer-events-none" />
-              <div className="th-logo-fade-r absolute right-0 top-0 bottom-0 w-20 z-10 pointer-events-none" />
-
-              {/* Scrolling track — 8 local logos × 4 repetitions for seamless loop */}
-              <div className="flex items-center w-max" style={{ animation: 'marquee 32s linear infinite' }}>
-                {(Array(4).fill([
-                  { name: 'Zoho',         src: '/logos/zoho.avif'        },
-                  { name: 'Dynamics 365', src: '/logos/dynamics365.avif' },
-                  { name: 'Sprinklr',     src: '/logos/sprinklr.avif'    },
-                  { name: 'Snowflake',    src: '/logos/snowflake.avif'   },
-                  { name: 'Genesys',      src: '/logos/genesys.avif'     },
-                  { name: 'Tally',        src: '/logos/tally.avif'       },
-                  { name: 'Workleap',     src: '/logos/workleap.avif'    },
-                  { name: 'Zimperium',    src: '/logos/zimperium.avif'   },
-                ]).flat() as { name: string; src: string }[]).map((brand, i) => (
-                  <div key={i} className="flex items-center shrink-0 px-8">
-                    <img
-                      src={brand.src}
-                      alt={brand.name}
-                      className="h-5 w-auto max-w-[90px] object-contain"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          {/* 4 gateway tool cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6">
-            {gatewayTools.map((tool, i) => (
-              tool.external ? (
-              <a key={tool.label} href={tool.href === 'COST_OPTIMIZER_URL' ? '#' : tool.href} target="_blank" rel="noopener noreferrer"
-                className="relative border border-black/8 rounded-sm p-6 hover:border-black/20 hover:shadow-md transition-all group bg-white overflow-hidden cursor-pointer">
-                {/* Subtle corner glow */}
-                <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{ background: `radial-gradient(circle, ${tool.color}20 0%, transparent 70%)` }} />
-                <div className="w-12 h-12 rounded-sm flex items-center justify-center mb-5 relative"
-                  style={{ backgroundColor: tool.color + '12' }}>
-                  <span style={{ color: tool.color }}>{tool.icon}</span>
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white border-2 flex items-center justify-center text-[8px] font-bold"
-                    style={{ color: tool.color, borderColor: tool.color + '40' }}>
-                    {i + 1}
-                  </span>
-                </div>
-                <h3 className="text-[16px] font-semibold text-black mb-2 leading-tight">{tool.label}</h3>
-                <p className="text-[13px] text-[#555] leading-[1.65] mb-5">{tool.desc}</p>
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors group-hover:gap-2"
-                    style={{ color: tool.color }}>
-                    Get started <ArrowRight size={12} />
-                  </span>
-                  <div className="w-7 h-7 rounded-full border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
-                    style={{ borderColor: tool.color + '40', backgroundColor: tool.color + '10' }}>
-                    <ArrowRight size={11} style={{ color: tool.color }} />
-                  </div>
-                </div>
-              </a>
-              ) : (
-              <Link key={tool.label} href={tool.href}
-                className="relative border border-black/8 rounded-sm p-6 hover:border-black/20 hover:shadow-md transition-all group bg-white overflow-hidden">
-                {/* Subtle corner glow */}
-                <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{ background: `radial-gradient(circle, ${tool.color}20 0%, transparent 70%)` }} />
-
-                <div className="w-12 h-12 rounded-sm flex items-center justify-center mb-5 relative"
-                  style={{ backgroundColor: tool.color + '12' }}>
-                  <span style={{ color: tool.color }}>{tool.icon}</span>
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white border-2 flex items-center justify-center text-[8px] font-bold"
-                    style={{ color: tool.color, borderColor: tool.color + '40' }}>
-                    {i + 1}
-                  </span>
-                </div>
-
-                <h3 className="text-[16px] font-semibold text-black mb-2 leading-tight">{tool.label}</h3>
-                <p className="text-[13px] text-[#555] leading-[1.65] mb-5">{tool.desc}</p>
-
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors group-hover:gap-2"
-                    style={{ color: tool.color }}>
-                    Get started <ArrowRight size={12} />
-                  </span>
-                  <div className="w-7 h-7 rounded-full border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
-                    style={{ borderColor: tool.color + '40', backgroundColor: tool.color + '10' }}>
-                    <ArrowRight size={11} style={{ color: tool.color }} />
-                  </div>
-                </div>
-              </Link>
-              )
-            ))}
-          </div>
-
-          {/* Stats strip below gateway */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { v: '50+', l: 'Verified products', c: 'var(--color-accent)' },
-              { v: '35', l: 'Software categories', c: 'var(--color-accent)' },
-              { v: 'Up to 40%', l: 'Bundle savings', c: 'var(--color-accent)' },
-              { v: '7 days', l: 'Average activation', c: '#FF9500' },
-            ].map(({ v, l, c }) => (
-              <div key={l} className="border border-black/8 rounded-sm px-4 py-3.5 bg-white hover:border-black/16 transition-colors">
-                <p className="text-[18px] font-semibold text-black leading-none mb-1" style={{ color: c }}>{v}</p>
-                <p className="text-[11px] text-muted">{l}</p>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-center text-[11px] text-muted mt-5">
-            Powered by <span className="font-semibold text-black">Zoftware</span> · Trusted by 5,000+ businesses across MENA & GCC
-          </p>
         </div>
       </section>
 
