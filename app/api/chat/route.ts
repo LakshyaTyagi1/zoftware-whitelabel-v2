@@ -1,6 +1,8 @@
 import * as ai from 'ai';
 import type { UIMessage } from 'ai';
+import { Client } from 'langsmith';
 import { createLangSmithProviderOptions, wrapAISDK } from 'langsmith/experimental/vercel';
+import { after } from 'next/server';
 import { z } from 'zod';
 import { catalogTools } from '@/lib/ai/catalog-tools';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
@@ -11,6 +13,7 @@ export const maxDuration = 30;
 export const runtime = 'nodejs';
 
 const { streamText } = wrapAISDK(ai);
+const langSmithClient = new Client();
 const isLangSmithTracingEnabled =
   process.env.LANGSMITH_TRACING === 'true' ||
   process.env.LANGCHAIN_TRACING_V2 === 'true';
@@ -86,6 +89,7 @@ export async function POST(req: Request) {
     providerOptions: {
       langsmith: createLangSmithProviderOptions<typeof ai.streamText>({
         name: 'zain-whitelabel-chat',
+        client: langSmithClient,
         project_name: process.env.LANGSMITH_PROJECT || 'zain-whitelabel',
         tracingEnabled: isLangSmithTracingEnabled,
         tags: ['zain-chat', 'zoftware', 'vertex'],
@@ -129,6 +133,16 @@ export async function POST(req: Request) {
       }
     },
   });
+
+  if (isLangSmithTracingEnabled) {
+    after(async () => {
+      try {
+        await langSmithClient.awaitPendingTraceBatches();
+      } catch (error) {
+        console.error('LangSmith trace flush failed', error);
+      }
+    });
+  }
 
   return result.toUIMessageStreamResponse({
     onError(error) {
