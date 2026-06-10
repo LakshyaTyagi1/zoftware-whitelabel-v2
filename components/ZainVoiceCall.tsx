@@ -111,6 +111,7 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
   const [errorMessage, setErrorMessage] = useState(isVoiceConfigured ? '' : 'Voice assistant is not configured yet.');
 
   const vapiRef = useRef<Vapi | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const messageIdRef = useRef(0);
   const accumulatedTranscriptRef = useRef<{ role: TranscriptRole; text: string } | null>(null);
@@ -363,6 +364,35 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
     if (event.key === 'Escape') {
       event.preventDefault();
       closeCall();
+      return;
+    }
+
+    if (event.key !== 'Tab') return;
+
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const focusableElements = Array.from(
+      dialog.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter(element => element.getClientRects().length > 0);
+
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement;
+
+    if (event.shiftKey && (activeElement === firstElement || !dialog.contains(activeElement))) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
     }
   };
 
@@ -385,6 +415,7 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="zain-voice-title"
@@ -486,7 +517,7 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={activeCall ? endCall : startCall}
-                disabled={!isVoiceConfigured || callStatus === 'loading' || callStatus === 'connecting'}
+                disabled={!isVoiceConfigured || callStatus === 'loading'}
                 className={`flex h-16 w-16 items-center justify-center rounded-2xl text-white shadow-xl transition-all ${
                   activeCall
                     ? 'bg-[#EF4444] hover:bg-[#DC2626]'
@@ -518,13 +549,10 @@ export default function ZainVoiceCall({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={() => setShowTranscript(value => !value)}
-                disabled={messages.length === 0}
                 className={`flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 transition-all lg:hidden ${
-                  messages.length === 0
-                    ? 'cursor-not-allowed bg-white/5 text-white/30'
-                    : showTranscript
-                      ? 'bg-[#3371FF]/25 text-white hover:bg-[#3371FF]/35'
-                      : 'bg-white/8 text-white hover:bg-white/14'
+                  showTranscript
+                    ? 'bg-[#3371FF]/25 text-white hover:bg-[#3371FF]/35'
+                    : 'bg-white/8 text-white hover:bg-white/14'
                 }`}
                 aria-label={showTranscript ? 'Hide transcript' : 'Show transcript'}
               >
