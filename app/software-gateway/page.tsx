@@ -813,20 +813,19 @@ export default function SoftwareGatewayPage() {
           </div>
 
           {/* Logo strip — moved above "Powered by" line */}
-          <div className="mb-5 overflow-hidden border border-black/6 rounded-sm bg-white py-4">
+          <div className="mb-5 overflow-hidden border border-black/6 rounded-sm bg-white py-3">
             <div className="relative overflow-hidden">
-              <div className="th-logo-fade-l absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none" />
-              <div className="th-logo-fade-r absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none" />
-              <div className="flex items-center" style={{ animation: 'marquee 28s linear infinite', width: 'max-content' }}>
-                {(Array(4).fill(logos).flat() as typeof logos).map((brand, idx) => (
-                  <div key={idx} className="flex items-center justify-center shrink-0 px-8" style={{ minWidth: '120px' }}>
+              <div className="th-logo-fade-l absolute left-0 top-0 bottom-0 w-12 z-10 pointer-events-none" />
+              <div className="th-logo-fade-r absolute right-0 top-0 bottom-0 w-12 z-10 pointer-events-none" />
+              {/* 2 copies exactly → translateX(-50%) loops seamlessly */}
+              <div className="flex items-center" style={{ animation: 'marquee 32s linear infinite', width: 'max-content' }}>
+                {(Array(2).fill(logos).flat() as typeof logos).map((brand, idx) => (
+                  <div key={idx} className="flex items-center justify-center shrink-0 px-5" style={{ minWidth: '90px' }}>
                     <img
                       src={brand.src}
                       alt={brand.name}
-                      width={80}
-                      height={24}
-                      className="object-contain hover:opacity-80 transition-opacity"
-                      style={{ maxHeight: '24px', width: 'auto' }}
+                      className="object-contain opacity-70 hover:opacity-100 transition-opacity"
+                      style={{ maxHeight: '18px', width: 'auto' }}
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
                   </div>
