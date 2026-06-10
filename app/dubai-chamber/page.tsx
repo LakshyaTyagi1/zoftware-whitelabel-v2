@@ -12,7 +12,7 @@ import {
 
 // ─── Login credentials (update when real creds are provided) ─────────────────
 const AUTH_USER = 'digital@zoftwarehub.com';
-const AUTH_PASS = 'Zain@4590';
+const AUTH_PASS = '0987';
 const AUTH_KEY  = 'dc_v2_auth';
 
 // ─── Nav structure ────────────────────────────────────────────────────────────
