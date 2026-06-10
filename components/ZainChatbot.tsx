@@ -222,7 +222,7 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
 
   const quickAction = (tool: typeof QUICK_TOOLS[0]) => {
     const reply: Message = { role: 'assistant', text: `Sure! Here's the link to ${tool.label}.`,
-      toolLink: { label: `Launch ${tool.label} →`, href: tool.href, external: tool.external } };
+      toolLink: { label: `Launch ${tool.label}`, href: tool.href, external: tool.external } };
     setMsgs(prev => [...prev, { role: 'user', text: tool.label }, reply]);
   };
 
