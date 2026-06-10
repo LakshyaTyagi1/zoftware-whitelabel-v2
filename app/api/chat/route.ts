@@ -1,4 +1,8 @@
-import { convertToModelMessages, streamText, stepCountIs, type UIMessage } from 'ai';
+import * as ai from 'ai';
+import type { UIMessage } from 'ai';
+import { Client } from 'langsmith';
+import { createLangSmithProviderOptions, wrapAISDK } from 'langsmith/experimental/vercel';
+import { after } from 'next/server';
 import { z } from 'zod';
 import { catalogTools } from '@/lib/ai/catalog-tools';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
@@ -8,10 +12,14 @@ import { ZAIN_SYSTEM_PROMPT } from '@/lib/ai/zain-system-prompt';
 export const maxDuration = 30;
 export const runtime = 'nodejs';
 
-const isChatTelemetryEnabled =
-  process.env.ZAIN_CHAT_TELEMETRY === 'true' ||
+const { streamText } = wrapAISDK(ai);
+const langSmithClient = new Client();
+const isLangSmithTracingEnabled =
   process.env.LANGSMITH_TRACING === 'true' ||
   process.env.LANGCHAIN_TRACING_V2 === 'true';
+const isChatTelemetryEnabled =
+  process.env.ZAIN_CHAT_TELEMETRY === 'true' ||
+  isLangSmithTracingEnabled;
 const shouldRecordChatTraceContent = process.env.ZAIN_CHAT_TRACE_CONTENT === 'true';
 const chatRequestSchema = z.object({
   messages: z.array(
@@ -63,9 +71,9 @@ export async function POST(req: Request) {
   const result = streamText({
     model: getZainLanguageModel(DEFAULT_CHAT_MODEL),
     system: ZAIN_SYSTEM_PROMPT,
-    messages: await convertToModelMessages(messages),
+    messages: await ai.convertToModelMessages(messages),
     tools: catalogTools,
-    stopWhen: stepCountIs(5),
+    stopWhen: ai.stepCountIs(5),
     experimental_telemetry: {
       isEnabled: isChatTelemetryEnabled,
       recordInputs: shouldRecordChatTraceContent,
@@ -78,6 +86,44 @@ export async function POST(req: Request) {
         messageCount: messages.length,
       },
     },
+    providerOptions: {
+      langsmith: createLangSmithProviderOptions<typeof ai.streamText>({
+        name: 'zain-whitelabel-chat',
+        client: langSmithClient,
+        project_name: process.env.LANGSMITH_PROJECT || 'zain-whitelabel',
+        tracingEnabled: isLangSmithTracingEnabled,
+        tags: ['zain-chat', 'zoftware', 'vertex'],
+        metadata: {
+          route: '/api/chat',
+          provider: 'vertex',
+          model: modelId,
+          messageCount: messages.length,
+        },
+        processInputs: inputs =>
+          shouldRecordChatTraceContent
+            ? (inputs as unknown as Record<string, unknown>)
+            : {
+                model: modelId,
+                messageCount: messages.length,
+                messages: '[redacted]',
+              },
+        processOutputs: outputs =>
+          shouldRecordChatTraceContent
+            ? (outputs as unknown as Record<string, unknown>)
+            : { response: '[redacted]' },
+        processChildLLMRunInputs: inputs =>
+          shouldRecordChatTraceContent
+            ? (inputs as unknown as Record<string, unknown>)
+            : {
+                model: modelId,
+                prompt: '[redacted]',
+              },
+        processChildLLMRunOutputs: outputs =>
+          shouldRecordChatTraceContent
+            ? (outputs as unknown as Record<string, unknown>)
+            : { response: '[redacted]' },
+      }),
+    },
     onStepFinish({ toolCalls, finishReason, usage }) {
       if (process.env.DEBUG) {
         const toolNames = toolCalls.map(toolCall => toolCall.toolName).join(', ') || 'none';
@@ -87,6 +133,16 @@ export async function POST(req: Request) {
       }
     },
   });
+
+  if (isLangSmithTracingEnabled) {
+    after(async () => {
+      try {
+        await langSmithClient.awaitPendingTraceBatches();
+      } catch (error) {
+        console.error('LangSmith trace flush failed', error);
+      }
+    });
+  }
 
   return result.toUIMessageStreamResponse({
     onError(error) {
