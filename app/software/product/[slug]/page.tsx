@@ -5,12 +5,13 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, ArrowRight, Star, Check, Globe, Users, Calendar, ExternalLink,
-  Building2, Mail, MapPin, ChevronRight, Shield, Clock, Zap, Package, CheckCircle
+  Building2, Mail, MapPin, ChevronRight, Shield, Clock, Zap, Package, CheckCircle, Tag
 } from 'lucide-react';
 import { getGatewayProductBySlug, GatewayProduct } from '@/data/gateway-products';
 import { getCatalogBySlug } from '@/data/products-catalog';
 import { bundles } from '@/data/bundles';
 import { AED_RATE } from '@/data/billing-options';
+import GetQuoteModal from '@/components/GetQuoteModal';
 
 
 const TABS = ['Overview', 'Features', 'Pricing', 'Bundles'] as const;
@@ -75,6 +76,7 @@ export default function GatewayProductPage({ params }: { params: Promise<{ slug:
   const [activeTab, setActiveTab] = useState<Tab>('Overview');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const [currency, setCurrency] = useState<'USD' | 'AED'>('USD');
+  const [quoteOpen, setQuoteOpen] = useState(false);
 
   const multiplier = billingCycle === 'annual' ? 0.8 : 1;
   const gcPrice = product.gcPrice * multiplier;
@@ -127,6 +129,10 @@ export default function GatewayProductPage({ params }: { params: Promise<{ slug:
           </div>
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-2 shrink-0">
+            <button onClick={() => setQuoteOpen(true)}
+              className="flex items-center gap-1.5 border border-accent text-accent px-4 py-2.5 text-[13px] font-medium rounded-sm hover:bg-accent/5 transition-colors min-h-[44px]">
+              <Tag size={13} /> Get Quote
+            </button>
             <Link href={checkoutUrl}
               className="flex items-center gap-2 bg-accent text-white px-5 py-2.5 text-[13px] font-medium rounded-sm hover:bg-accent-hover transition-colors min-h-[44px]">
               Buy Now — {fmt(gcPrice)}/user/mo <ArrowRight size={13} strokeWidth={2} />
@@ -313,6 +319,10 @@ export default function GatewayProductPage({ params }: { params: Promise<{ slug:
                     className="flex items-center justify-center gap-2 w-full bg-accent text-white py-3 text-[14px] font-semibold rounded-sm hover:bg-accent-hover transition-colors min-h-[44px]">
                     Buy Now — {fmt(gcPrice)}/user/mo <ArrowRight size={14} strokeWidth={2} />
                   </Link>
+                  <button onClick={() => setQuoteOpen(true)}
+                    className="flex items-center justify-center gap-1.5 w-full border border-accent text-accent py-2.5 text-[13px] font-semibold rounded-sm hover:bg-accent/5 transition-colors min-h-[44px]">
+                    <Tag size={13} /> Get Custom Quote
+                  </button>
                 </div>
 
                 {/* Standard vendor plans */}
@@ -456,19 +466,25 @@ export default function GatewayProductPage({ params }: { params: Promise<{ slug:
 
       {/* Mobile sticky buy */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-black border-t border-white/10">
-        <div className="px-4 py-3 flex items-center justify-between gap-4">
+        <div className="px-4 py-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-[15px] font-semibold text-white">{fmt(gcPrice)}<span className="text-[11px] text-white/60 font-normal">/user/mo</span></p>
             <p className="text-[10px] text-[#16a34a] font-semibold">{product.discountPct}% off — GCC exclusive</p>
           </div>
-          <Link href={checkoutUrl}
-            className="flex items-center gap-2 bg-accent text-white px-5 py-2.5 text-[13px] font-semibold rounded-sm hover:bg-accent-hover transition-colors min-h-[44px]">
-            Buy Now <ArrowRight size={13} strokeWidth={2} />
-          </Link>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setQuoteOpen(true)}
+              className="flex items-center gap-1 border border-white/30 text-white px-3 py-2.5 text-[12px] font-semibold rounded-sm hover:bg-white/10 transition-colors min-h-[44px]">
+              <Tag size={12} /> Quote
+            </button>
+            <Link href={checkoutUrl}
+              className="flex items-center gap-2 bg-accent text-white px-4 py-2.5 text-[13px] font-semibold rounded-sm hover:bg-accent-hover transition-colors min-h-[44px]">
+              Buy Now <ArrowRight size={13} strokeWidth={2} />
+            </Link>
+          </div>
         </div>
       </div>
 
-      
+      {quoteOpen && <GetQuoteModal productName={product.name} onClose={() => setQuoteOpen(false)} />}
     </div>
   );
 }
