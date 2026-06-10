@@ -824,7 +824,7 @@ export default function SoftwareGatewayPage() {
                     <img
                       src={brand.src}
                       alt={brand.name}
-                      className="object-contain opacity-70 hover:opacity-100 transition-opacity"
+                      className="object-contain"
                       style={{ maxHeight: '18px', width: 'auto' }}
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
