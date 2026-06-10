@@ -226,90 +226,83 @@ function SoftwareContent() {
                     const inCart = isInCart(p.id);
                     return (
                       /* Entire card is clickable → detail page via stretched pseudo-link */
-                      <div key={p.id} className="relative border border-zinc-200 rounded-2xl hover:border-zinc-300 hover:shadow-md transition-all bg-white group cursor-pointer flex flex-col md:flex-row md:items-center justify-between p-4 gap-4">
+                      <div key={p.id} className="relative border border-zinc-200 rounded-xl hover:border-zinc-300 hover:shadow-sm transition-all bg-white group cursor-pointer flex flex-row items-center justify-between px-3.5 py-3 gap-3">
                         {/* Stretched invisible link covers full card */}
-                        <Link href={detailUrl} className="absolute inset-0 rounded-2xl z-0" aria-label={`View ${p.name} details`} />
+                        <Link href={detailUrl} className="absolute inset-0 rounded-xl z-0" aria-label={`View ${p.name} details`} />
 
-                        {/* Left/Middle Content */}
-                        <div className="flex-1 min-w-0 flex items-start gap-4 relative z-0 pointer-events-none">
-                          {/* Logo */}
-                          <div className="w-12 h-12 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0 text-[12px] font-bold text-zinc-700">
-                            {p.logo}
+                        {/* Logo */}
+                        <div className="w-10 h-10 rounded-lg bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0 text-[11px] font-bold text-zinc-700 relative z-0 pointer-events-none">
+                          {p.logo}
+                        </div>
+
+                        {/* Text Content */}
+                        <div className="flex-1 min-w-0 relative z-0 pointer-events-none">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-[13px] font-semibold text-zinc-900 leading-tight group-hover:text-accent transition-colors">{p.name}</p>
+                            <span className="text-[10px] text-zinc-400">by {p.vendor}</span>
+                            {p.discountPct > 0 && (
+                              <span className="text-[9px] font-bold bg-orange-50 text-orange-600 border border-orange-100 px-1.5 py-0.5 rounded-full shrink-0">
+                                {p.discountPct}% OFF
+                              </span>
+                            )}
                           </div>
-
-                          {/* Text Content */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap mb-1">
-                              <p className="text-[14px] font-semibold text-zinc-900 leading-tight group-hover:text-accent transition-colors">{p.name}</p>
-                              <span className="text-[11px] text-zinc-400">by {p.vendor}</span>
-                              {p.discountPct > 0 && (
-                                <span className="text-[9px] font-bold bg-orange-50 text-orange-600 border border-orange-100 px-1.5 py-0.5 rounded-full shrink-0">
-                                  {p.discountPct}% OFF
-                                </span>
-                              )}
-                            </div>
-
-                            <p className="text-[11px] text-zinc-500 leading-relaxed mb-2 line-clamp-1">{p.tagline}</p>
-
-                            <div className="flex items-center gap-3 flex-wrap">
-                              <span className="text-[10px] font-medium text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded-full">{p.category}</span>
-                              <div className="flex items-center gap-1.5">
-                                <StarRow rating={p.rating} />
-                                <span className="text-[10px] text-zinc-400">{p.rating} · {p.reviews.toLocaleString()} reviews</span>
-                              </div>
+                          <p className="text-[11px] text-zinc-400 line-clamp-1 mt-0.5">{p.tagline}</p>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <span className="text-[10px] font-medium text-zinc-500 bg-zinc-100 px-1.5 py-0.5 rounded-full">{p.category}</span>
+                            <div className="flex items-center gap-1">
+                              <StarRow rating={p.rating} />
+                              <span className="text-[10px] text-zinc-400">{p.rating} ({p.reviews.toLocaleString()})</span>
                             </div>
                           </div>
                         </div>
 
-                        {/* Right Content — Price and CTAs */}
-                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-zinc-100 md:pl-4 relative z-10">
+                        {/* Right — Price + CTAs */}
+                        <div className="flex items-center gap-3 shrink-0 relative z-10">
                           {/* Price */}
-                          <div className="text-left md:text-right pointer-events-none">
+                          <div className="text-right pointer-events-none hidden sm:block">
                             {p.gcPrice === 0 ? (
-                              <span className="text-[16px] font-bold text-emerald-600">Free</span>
+                              <span className="text-[15px] font-bold text-emerald-600">Free</span>
                             ) : (
-                              <div>
-                                <div className="flex items-baseline gap-1 md:justify-end">
-                                  <span className="text-[16px] font-bold text-zinc-900">{fmt(p.gcPrice)}</span>
-                                  <span className="text-[11px] text-zinc-400">/mo</span>
+                              <>
+                                <div className="flex items-baseline gap-0.5 justify-end">
+                                  <span className="text-[15px] font-bold text-zinc-900">{fmt(p.gcPrice)}</span>
+                                  <span className="text-[10px] text-zinc-400">/mo</span>
                                 </div>
-                                <div className="flex items-center gap-1.5 md:justify-end flex-wrap">
-                                  <span className="text-[12px] text-accent font-semibold">{fmt(annualFinal)}/mo</span>
-                                  <span className="text-[10px] text-zinc-400 line-through">{fmt(annualBase)}</span>
-                                  <span className="text-[8px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-1 py-0.5 rounded-full">-{annualPct}%</span>
+                                <div className="flex items-center gap-1 justify-end">
+                                  <span className="text-[11px] text-accent font-semibold">{fmt(annualFinal)}</span>
+                                  <span className="text-[9px] text-zinc-400 line-through">{fmt(annualBase)}</span>
+                                  <span className="text-[8px] font-bold text-emerald-600">-{annualPct}%</span>
                                 </div>
-                                <span className="text-[9px] text-zinc-400">annual plan</span>
-                              </div>
+                                <span className="text-[9px] text-zinc-400 block text-right">annual</span>
+                              </>
                             )}
                           </div>
 
                           {/* CTAs */}
-                          <div className="flex flex-col gap-1.5 items-end">
-                            <div className="flex items-center gap-2">
-                              {/* Cart button */}
+                          <div className="flex flex-col gap-1 items-end">
+                            <div className="flex items-center gap-1.5">
                               <button
                                 onClick={e => {
                                   e.preventDefault(); e.stopPropagation();
                                   addToCart({ id: p.id, slug: p.slug, name: p.name, vendor: p.vendor, logo: p.logo, category: p.category, gcPrice: p.gcPrice, currency, addedAt: new Date().toISOString() });
                                   setCartVersion(v => v + 1);
                                   window.dispatchEvent(new Event('zg-cart-updated'));
-                                  // auto-open cart panel
                                   document.dispatchEvent(new CustomEvent('zg-open-cart'));
                                 }}
                                 title={inCart ? 'In cart' : 'Add to cart'}
-                                className="w-9 h-9 rounded-xl flex items-center justify-center border transition-all"
+                                className="w-8 h-8 rounded-lg flex items-center justify-center border transition-all"
                                 style={{ borderColor: inCart ? 'var(--color-accent)' : '#e4e4e7', background: inCart ? 'var(--color-accent)' : 'white' }}>
-                                <ShoppingCart size={13} style={{ color: inCart ? '#fff' : '#71717a' }} />
+                                <ShoppingCart size={12} style={{ color: inCart ? '#fff' : '#71717a' }} />
                               </button>
                               <Link href={checkoutUrl}
-                                className="px-4 py-2 bg-accent text-white text-[12px] font-semibold rounded-xl hover:bg-accent-hover transition-colors whitespace-nowrap">
+                                className="px-3.5 py-1.5 bg-accent text-white text-[12px] font-semibold rounded-lg hover:bg-accent-hover transition-colors whitespace-nowrap">
                                 Buy Now
                               </Link>
                             </div>
                             <button
                               onClick={e => { e.preventDefault(); e.stopPropagation(); setQuoteProduct(p.name); }}
-                              className="flex items-center gap-1 text-[11px] font-semibold text-accent hover:underline">
-                              <Tag size={10} /> Get Custom Quote
+                              className="flex items-center gap-0.5 text-[10px] font-semibold text-accent hover:underline">
+                              <Tag size={9} /> Get Quote
                             </button>
                           </div>
                         </div>
@@ -349,8 +342,6 @@ function SoftwareContent() {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                         <p className="text-[15px] font-bold text-zinc-900 truncate group-hover:text-accent transition-colors">{bundle.name}</p>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white shrink-0"
-                          style={{ backgroundColor: bundle.color }}>−{bundle.savePct}%</span>
                         {BUNDLE_DISCOUNTS[bundle.slug] && (
                           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 shrink-0">
                             Save {BUNDLE_DISCOUNTS[bundle.slug]}
