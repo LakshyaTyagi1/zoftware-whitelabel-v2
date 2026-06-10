@@ -86,6 +86,13 @@ function SoftwareContent() {
   // Reset confirm when tool changes
   useEffect(() => { setShowCloseConfirm(false); }, [activeTool]);
 
+  // Keep cart state in sync: any add or remove → re-render so isInCart() reflects reality
+  useEffect(() => {
+    const sync = () => setCartVersion(v => v + 1);
+    window.addEventListener('zg-cart-updated', sync);
+    return () => window.removeEventListener('zg-cart-updated', sync);
+  }, []);
+
   // Close handlers
   const handleCloseRequest = () => setShowCloseConfirm(true);
   const handleConfirmedClose = () => { router.push('/software'); setShowCloseConfirm(false); };
@@ -285,8 +292,7 @@ function SoftwareContent() {
                                 onClick={e => {
                                   e.preventDefault(); e.stopPropagation();
                                   addToCart({ id: p.id, slug: p.slug, name: p.name, vendor: p.vendor, logo: p.logo, category: p.category, gcPrice: p.gcPrice, currency, addedAt: new Date().toISOString() });
-                                  setCartVersion(v => v + 1);
-                                  window.dispatchEvent(new Event('zg-cart-updated'));
+                                  // addToCart already fires zg-cart-updated → sync useEffect updates cartVersion
                                   document.dispatchEvent(new CustomEvent('zg-open-cart'));
                                 }}
                                 title={inCart ? 'In cart' : 'Add to cart'}
