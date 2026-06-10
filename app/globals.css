@@ -133,9 +133,6 @@ body {
 /* ── Body text warm shift ── */
 [data-theme="2"] .text-black          { color: #1A130C !important; }
 [data-theme="2"] .hover\:text-black:hover { color: #1A130C !important; }
-[data-theme="2"] .text-\[#333\]       { color: #2C2016 !important; }
-[data-theme="2"] .text-\[#444\]       { color: #4A3928 !important; }
-[data-theme="2"] .text-\[#555\]       { color: #6B5644 !important; }
 
 /* ── Border colours → warm stone ── */
 [data-theme="2"] .border-black\/5,

@@ -95,12 +95,12 @@ function CheckoutContent() {
 
   // ── Step 2 state — Payment & Details ───────────────────────────────────
   const [card, setCard]       = useState({ number: '', expiry: '', cvv: '', name: '' });
-  const [details, setDetails] = useState({
-    fullName: 'Ravi Sharma',
-    company:  'Gulf Enterprises LLC',
-    email:    'ravi.sharma@gulf-enterprises.ae',
-    phone:    '+971 50 123 4567',
-    vatNo:    '',
+  const [orderDetails, setOrderDetails] = useState({
+    licenseCompany:  '',
+    companyLocation: '',
+    vatNo:           '',
+    contactPerson:   '',
+    contactDesignation: '',
   });
   const [sameAddress, setSameAddress] = useState(true);
   const [billing, setBilling]         = useState({ line1: '', city: '', country: 'UAE' });
@@ -124,8 +124,6 @@ function CheckoutContent() {
     if (!card.expiry.match(/^\d{2}\/\d{2}$/)) e.expiry = 'MM/YY required';
     if (card.cvv.length < 3) e.cvv = 'CVV required';
     if (!card.name.trim()) e.cardName = 'Name on card required';
-    if (!details.fullName.trim()) e.fullName = 'Required';
-    if (!details.email.includes('@')) e.email = 'Valid email required';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -199,7 +197,7 @@ function CheckoutContent() {
           <Check size={28} className="text-emerald-600" strokeWidth={2.5}/>
         </div>
         <h1 className="text-[22px] font-semibold text-black mb-2">{basePrice === 0 ? 'Account Activated!' : 'Order Confirmed!'}</h1>
-        <p className="text-[13px] text-muted mb-6">Confirmation sent to <span className="font-medium text-black">{details.email}</span></p>
+        <p className="text-[13px] text-muted mb-6">Confirmation sent to <span className="font-medium text-black">ravi.sharma@gulf-enterprises.ae</span></p>
 
         <div className="bg-surface rounded-lg p-4 mb-5 text-left space-y-2">
           {[
@@ -440,20 +438,31 @@ function CheckoutContent() {
                   )}
                 </div>
 
-                {/* Personal details */}
+                {/* License & billing details */}
                 <div className="bg-white border border-black/10 rounded-lg p-5 sm:p-6 shadow-sm">
-                  <h3 className="text-[15px] font-semibold text-black mb-1">Contact Details</h3>
-                  <p className="text-[12px] text-muted mb-4">Pre-filled from your account. <span className="text-accent cursor-pointer hover:underline">Update profile</span></p>
+                  <div className="flex items-center gap-3 mb-5 pb-4 border-b border-black/8">
+                    <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                      <span className="text-[13px] font-bold text-accent">RS</span>
+                    </div>
+                    <div>
+                      <p className="text-[14px] font-semibold text-black">Hi Ravi, a few more details for this order</p>
+                      <p className="text-[12px] text-muted">Your account info is already saved — just confirm the license details below.</p>
+                    </div>
+                  </div>
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label="Full Name" value={details.fullName} onChange={v => setDetails(d=>({...d,fullName:v}))} placeholder="Ravi Sharma" icon={<User2 size={13}/>} error={errors.fullName}/>
-                      <Field label="Company" value={details.company} onChange={v => setDetails(d=>({...d,company:v}))} placeholder="Gulf Enterprises LLC" icon={<Building2 size={13}/>}/>
+                      <Field label="License Company" value={orderDetails.licenseCompany} onChange={v => setOrderDetails(d=>({...d,licenseCompany:v}))} placeholder="Company receiving the licenses" icon={<Building2 size={13}/>}/>
+                      <Field label="Company Location" value={orderDetails.companyLocation} onChange={v => setOrderDetails(d=>({...d,companyLocation:v}))} placeholder="e.g. Dubai, UAE" icon={<MapPin size={13}/>}/>
                     </div>
+                    <Field label="VAT Number" value={orderDetails.vatNo} onChange={v => setOrderDetails(d=>({...d,vatNo:v}))} placeholder="AE123456789012345" optional/>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Field label="Primary Email" value={details.email} onChange={v => setDetails(d=>({...d,email:v}))} placeholder="ravi@company.ae" type="email" icon={<Mail size={13}/>} error={errors.email}/>
-                      <Field label="Contact Number" value={details.phone} onChange={v => setDetails(d=>({...d,phone:v}))} placeholder="+971 50 000 0000" type="tel" icon={<Phone size={13}/>}/>
+                      <Field label="Contact Person" value={orderDetails.contactPerson} onChange={v => setOrderDetails(d=>({...d,contactPerson:v}))} placeholder="Full name" icon={<User2 size={13}/>}/>
+                      <Field label="Designation" value={orderDetails.contactDesignation} onChange={v => setOrderDetails(d=>({...d,contactDesignation:v}))} placeholder="e.g. IT Manager"/>
                     </div>
-                    <Field label="VAT Number" value={details.vatNo} onChange={v => setDetails(d=>({...d,vatNo:v}))} placeholder="AE123456789012345" optional/>
+                    <div className="bg-surface border border-black/8 rounded-lg px-4 py-3 flex items-center justify-between">
+                      <div className="text-[12px] text-muted">Licenses allocated to this order</div>
+                      <div className="text-[15px] font-bold text-black">{licenses} {isBundle ? 'bundle(s)' : 'user license(s)'}</div>
+                    </div>
                   </div>
                 </div>
 

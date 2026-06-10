@@ -16,7 +16,7 @@ const tools = [
     icon: <Search size={20} strokeWidth={1.5} />,
     label: 'Smart Search',
     desc: 'Find the right software from 50+ verified products in seconds.',
-    href: null,           // opens SmartSearch modal instead of navigating
+    href: '/software?tool=search',
     color: 'var(--color-accent)',
     badge: 'Instant results',
     external: false,
@@ -25,7 +25,7 @@ const tools = [
     icon: <BarChart2 size={20} strokeWidth={1.5} />,
     label: 'Tech Strategy Builder',
     desc: 'Get a full tech strategy and implementation roadmap in under 1 minute.',
-    href: '/software/report/strategy',
+    href: '/software?tool=strategy',
     color: '#7C3AED',
     badge: 'AI-generated',
     external: false,
@@ -34,7 +34,7 @@ const tools = [
     icon: <FileText size={20} strokeWidth={1.5} />,
     label: 'Tech Requirement Builder',
     desc: 'Generate a detailed technical requirements document for your procurement.',
-    href: '/software/report/requirements',
+    href: '/software?tool=requirements',
     color: '#0284C7',
     badge: 'RFP-ready',
     external: false,
@@ -786,20 +786,20 @@ function ZainChatbot({ defaultOpen }: { defaultOpen: boolean }) {
   return (
     <>
       {/* ── FABs: Zain avatar (chat) on top, green phone below ── */}
-      <div className="fixed bottom-6 right-6 flex flex-col items-end gap-3 z-50">
+      <div className="fixed bottom-6 right-6 flex flex-col items-center gap-3 z-50">
         {/* Zain avatar — opens chat */}
         <button onClick={() => setOpen(o => !o)}
           title="Chat with Zain"
           className="transition-all hover:scale-105 active:scale-95"
           style={{ filter: open ? 'drop-shadow(0 0 6px var(--color-accent))' : 'drop-shadow(0 4px 14px rgba(0,0,0,0.28))' }}>
-          <img src="/zain-avatar.svg" alt="Zain" className="w-12 h-12 block" />
+          <img src="/zain-avatar.svg" alt="Zain" className="w-14 h-14 block" />
         </button>
         {/* Green call button — bottom */}
         <button onClick={() => setCalling(true)}
           title="Call Zain"
-          className="w-11 h-11 rounded-full flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all"
-          style={{ backgroundColor: '#16A34A', boxShadow: '0 4px 14px rgba(22,163,74,0.35)' }}>
-          <Phone size={16} strokeWidth={2} />
+          className="w-9 h-9 rounded-full flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95"
+          style={{ backgroundColor: '#16A34A', boxShadow: '0 4px 10px rgba(22,163,74,0.35)' }}>
+          <Phone size={15} strokeWidth={2} />
         </button>
       </div>
 
@@ -945,7 +945,6 @@ function ZainChatbot({ defaultOpen }: { defaultOpen: boolean }) {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function SoftwareGatewayPage() {
-  const [smartSearchOpen, setSmartSearchOpen] = useState(false);
 
   return (
     <div className="bg-white min-h-screen font-sans">
@@ -984,7 +983,7 @@ export default function SoftwareGatewayPage() {
               <div className="inline-flex items-center gap-2 bg-accent text-white px-3 py-1.5 rounded-sm text-[10px] font-bold tracking-[0.1em] uppercase mb-4 shadow-sm shadow-accent/20">
                 <Zap size={11} strokeWidth={2.5} /> Exclusive Software Gateway
               </div>
-              <h2 className="text-[24px] sm:text-[32px] font-medium text-black tracking-tight leading-[1.1] mb-2.5">
+              <h2 className="text-[28px] sm:text-[36px] font-semibold text-black tracking-tight leading-[1.1] mb-2.5">
                 Procure the right software.<br />
                 <span className="text-accent">In minutes, not months.</span>
               </h2>
@@ -1050,15 +1049,6 @@ export default function SoftwareGatewayPage() {
                 </>
               );
 
-              if (tool.href === null) {
-                // Smart Search — opens modal
-                return (
-                  <button key={tool.label} className={`${shared} text-left cursor-pointer`}
-                    onClick={() => setSmartSearchOpen(true)}>
-                    {inner}
-                  </button>
-                );
-              }
               if (tool.external) {
                 return (
                   <a key={tool.label} href={tool.href} target="_blank" rel="noopener noreferrer"
@@ -1095,9 +1085,6 @@ export default function SoftwareGatewayPage() {
           </p>
         </div>
       </section>
-
-      {/* ── Smart Search modal ── */}
-      {smartSearchOpen && <SmartSearchModal onClose={() => setSmartSearchOpen(false)} />}
 
       {/* ── Zain chatbot + caller ── */}
       <ZainChatbot defaultOpen={true} />

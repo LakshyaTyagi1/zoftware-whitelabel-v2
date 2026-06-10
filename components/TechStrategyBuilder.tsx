@@ -202,7 +202,7 @@ export default function TechStrategyBuilder({ onClose }: { onClose: () => void }
   };
 
   return (
-    <div className="flex flex-col bg-white h-full" style={{ minHeight: '500px', maxHeight: '72vh' }}>
+    <div className="flex flex-col bg-white h-full">
 
       {/* Progress bar */}
       {!done && !reviewing && (
