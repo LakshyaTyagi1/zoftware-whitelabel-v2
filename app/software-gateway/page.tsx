@@ -4,19 +4,19 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Search, FileText, BarChart2, TrendingDown, ArrowRight, Zap,
-  MessageSquare, Phone, X, Send, Sparkles, ChevronRight,
-  ExternalLink, PhoneOff
+  Phone, X, Send, Sparkles, ChevronRight,
+  ExternalLink, PhoneOff, Check, Star, SlidersHorizontal
 } from 'lucide-react';
 import { gatewayProducts } from '@/data/gateway-products';
 import ThemeToggle from '@/components/ThemeToggle';
 
-// ── Tool cards — Smart Search → Tech Strategy → Tech Requirement → Cost Optimizer
+// ── Tool cards ────────────────────────────────────────────────────────────────
 const tools = [
   {
     icon: <Search size={20} strokeWidth={1.5} />,
     label: 'Smart Search',
     desc: 'Find the right software from 50+ verified products in seconds.',
-    href: '/software',
+    href: null,           // opens SmartSearch modal instead of navigating
     color: 'var(--color-accent)',
     badge: 'Instant results',
     external: false,
@@ -50,7 +50,6 @@ const tools = [
   },
 ];
 
-// ── Logos ─────────────────────────────────────────────────────────────────────
 const logos = [
   { name: 'Zoho',         src: '/logos/zoho.avif'        },
   { name: 'Dynamics 365', src: '/logos/dynamics365.avif' },
@@ -61,6 +60,310 @@ const logos = [
   { name: 'Workleap',     src: '/logos/workleap.avif'    },
   { name: 'Zimperium',    src: '/logos/zimperium.avif'   },
 ];
+
+// ── Compatibility score ───────────────────────────────────────────────────────
+function getScore(p: typeof gatewayProducts[0], q: string): number {
+  if (!q.trim()) return Math.round(60 + p.rating * 6);
+  const ql = q.toLowerCase();
+  let s = 52;
+  if (p.name.toLowerCase().includes(ql))     s += 28;
+  if (p.category.toLowerCase().includes(ql)) s += 20;
+  if (p.vendor.toLowerCase().includes(ql))   s += 14;
+  if (p.tagline.toLowerCase().includes(ql))  s += 10;
+  p.tags.forEach(t => { if (t.toLowerCase().includes(ql)) s += 5; });
+  return Math.min(97, s);
+}
+
+// ── Smart Search Modal ────────────────────────────────────────────────────────
+function SmartSearchModal({ onClose }: { onClose: () => void }) {
+  const [query,       setQuery]       = useState('');
+  const [selected,    setSelected]    = useState<string[]>([]);
+  const [comparing,   setComparing]   = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  const suggestions = [
+    'CRM for 50 users', 'ERP for manufacturing', 'HR management',
+    'Marketing automation', 'Cloud security', 'Accounting',
+  ];
+
+  const results = gatewayProducts
+    .map(p => ({ ...p, score: getScore(p, query) }))
+    .filter(p => !query.trim() || p.score > 62)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 12);
+
+  const toggleSelect = (id: string) => {
+    setSelected(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id)
+        : prev.length < 3 ? [...prev, id] : prev
+    );
+  };
+
+  const compareList = results.filter(p => selected.includes(p.id));
+
+  const scoreColor = (s: number) =>
+    s >= 85 ? '#16A34A' : s >= 72 ? '#D97706' : '#9CA3AF';
+
+  const scoreLabel = (s: number) =>
+    s >= 85 ? 'Excellent' : s >= 72 ? 'Good' : 'Partial';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      style={{ backgroundColor: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)' }}
+      onClick={onClose}>
+      <div className="bg-white rounded-2xl w-full max-w-[860px] flex flex-col shadow-2xl border border-black/8 overflow-hidden"
+        style={{ maxHeight: 'min(88vh, 780px)' }}
+        onClick={e => e.stopPropagation()}>
+
+        {/* ── Header ── */}
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-black/8 shrink-0">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' }}>
+            <Search size={16} className="text-white" strokeWidth={2} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[15px] font-semibold text-black">Smart Search</p>
+            <p className="text-[11px] text-muted">AI-powered match scoring across 50+ verified products</p>
+          </div>
+          {selected.length >= 2 && !comparing && (
+            <button onClick={() => setComparing(true)}
+              className="flex items-center gap-1.5 text-[12px] font-semibold text-white px-4 py-2 rounded-xl mr-2"
+              style={{ background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' }}>
+              <SlidersHorizontal size={12} /> Compare {selected.length}
+            </button>
+          )}
+          {comparing && (
+            <button onClick={() => setComparing(false)}
+              className="text-[12px] font-semibold text-accent hover:underline mr-2">
+              ← Back
+            </button>
+          )}
+          <button onClick={onClose}
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-muted hover:text-black hover:bg-surface transition-colors">
+            <X size={15} />
+          </button>
+        </div>
+
+        {!comparing ? (
+          <>
+            {/* ── Search bar ── */}
+            <div className="px-6 pt-4 pb-3 border-b border-black/8 shrink-0">
+              <div className="relative mb-3">
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+                <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)}
+                  placeholder="Describe what you need — e.g. CRM for 50 users, ERP for retail…"
+                  className="w-full pl-10 pr-4 py-3 text-[14px] bg-[#f9fafb] border border-black/10 rounded-xl outline-none focus:border-accent/40 focus:ring-2 focus:ring-accent/8 focus:bg-white transition-all"
+                />
+                {query && (
+                  <button onClick={() => setQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-black">
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {suggestions.map(s => (
+                  <button key={s} onClick={() => setQuery(s)}
+                    className={`text-[11px] font-medium px-2.5 py-1 rounded-full border transition-all ${
+                      query === s
+                        ? 'border-accent/40 text-accent bg-accent/8'
+                        : 'border-black/10 text-[#555] hover:border-accent/30 hover:text-accent hover:bg-accent/5'
+                    }`}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Results ── */}
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[12px] text-muted">
+                  <span className="font-semibold text-black">{results.length}</span> products{query && ` matching "${query}"`}
+                  {selected.length > 0 && <span className="ml-2 text-accent font-semibold">· {selected.length} selected</span>}
+                </p>
+                {selected.length > 0 && (
+                  <button onClick={() => setSelected([])} className="text-[11px] text-muted hover:text-black">Clear selection</button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {results.map(p => {
+                  const isSelected = selected.includes(p.id);
+                  const sc = p.score;
+                  const color = scoreColor(sc);
+                  return (
+                    <div key={p.id}
+                      className={`relative rounded-xl p-4 border cursor-pointer transition-all ${
+                        isSelected
+                          ? 'border-accent/50 bg-accent/4 shadow-sm shadow-accent/10'
+                          : 'border-black/8 bg-white hover:border-black/20 hover:shadow-md'
+                      }`}
+                      onClick={() => toggleSelect(p.id)}>
+
+                      {/* Selection circle */}
+                      <div className={`absolute top-3.5 right-3.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                        isSelected ? 'border-accent bg-accent' : 'border-black/20 bg-white'
+                      }`}>
+                        {isSelected && <Check size={10} className="text-white" strokeWidth={3} />}
+                      </div>
+
+                      {/* Product info */}
+                      <div className="flex items-start gap-3 mb-2.5 pr-6">
+                        <div className="w-9 h-9 rounded-lg bg-zinc-100 border border-zinc-200 flex items-center justify-center text-[11px] font-bold text-zinc-600 shrink-0">
+                          {p.logo}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-semibold text-black leading-tight">{p.name}</p>
+                          <p className="text-[10px] text-muted">{p.vendor} · {p.category}</p>
+                        </div>
+                      </div>
+
+                      <p className="text-[11px] text-[#555] leading-snug mb-3 line-clamp-2">{p.tagline}</p>
+
+                      {/* Match bar + price */}
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <div className="flex-1 h-1.5 bg-black/8 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full" style={{ width: `${sc}%`, backgroundColor: color }} />
+                          </div>
+                          <span className="text-[10px] font-bold shrink-0" style={{ color }}>
+                            {sc}%
+                          </span>
+                          <span className="text-[9px] font-semibold shrink-0 px-1.5 py-0.5 rounded-full"
+                            style={{ color, backgroundColor: color + '15' }}>
+                            {scoreLabel(sc)}
+                          </span>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-[12px] font-bold text-black">
+                            {p.gcPrice === 0 ? 'Free' : `$${p.gcPrice}/mo`}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Rating row */}
+                      <div className="flex items-center gap-1 mt-2">
+                        {[1,2,3,4,5].map(i => (
+                          <Star key={i} size={9}
+                            fill={i <= Math.round(p.rating) ? '#F59E0B' : 'none'}
+                            className={i <= Math.round(p.rating) ? 'text-amber-400' : 'text-zinc-300'} />
+                        ))}
+                        <span className="text-[9px] text-muted ml-0.5">{p.rating} ({p.reviews.toLocaleString()})</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {results.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-[14px] font-semibold text-black mb-1">No products found</p>
+                  <p className="text-[12px] text-muted mb-4">Try a different search term or browse a category</p>
+                  <button onClick={() => setQuery('')} className="text-[12px] font-semibold text-accent hover:underline">
+                    Clear search
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* ── Footer bar ── */}
+            {selected.length > 0 && (
+              <div className="border-t border-black/8 px-6 py-3 flex items-center justify-between shrink-0 bg-[#fafafa]">
+                <p className="text-[12px] text-muted">
+                  <span className="font-semibold text-black">{selected.length}</span> selected · up to 3 for comparison
+                </p>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setSelected([])}
+                    className="text-[12px] text-muted hover:text-black px-3 py-1.5 rounded-lg hover:bg-surface transition-colors">
+                    Clear
+                  </button>
+                  {selected.length >= 2 && (
+                    <button onClick={() => setComparing(true)}
+                      className="flex items-center gap-1.5 text-[12px] font-semibold text-white px-4 py-2 rounded-xl"
+                      style={{ background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' }}>
+                      <SlidersHorizontal size={12} /> Compare {selected.length} products
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          /* ── Compare view ── */
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            <p className="text-[12px] text-muted mb-5">
+              Side-by-side comparison of {compareList.length} selected products
+            </p>
+            <div className={`grid gap-4 ${compareList.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+              {compareList.map(p => {
+                const sc = p.score;
+                const color = scoreColor(sc);
+                return (
+                  <div key={p.id} className="border border-black/8 rounded-xl overflow-hidden">
+                    {/* Card header */}
+                    <div className="px-4 py-4 bg-surface border-b border-black/8">
+                      <div className="w-10 h-10 rounded-lg bg-white border border-black/8 flex items-center justify-center text-[11px] font-bold text-zinc-600 mb-2">
+                        {p.logo}
+                      </div>
+                      <p className="text-[13px] font-semibold text-black leading-tight">{p.name}</p>
+                      <p className="text-[10px] text-muted mt-0.5">{p.vendor}</p>
+                      {/* Match badge */}
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <div className="flex-1 h-1 bg-black/8 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${sc}%`, backgroundColor: color }} />
+                        </div>
+                        <span className="text-[10px] font-bold" style={{ color }}>{sc}% match</span>
+                      </div>
+                    </div>
+
+                    {/* Attributes */}
+                    <div className="px-4 py-4 space-y-3">
+                      {([
+                        { l: 'Category',  v: p.category },
+                        { l: 'Price',     v: p.gcPrice === 0 ? 'Free' : `$${p.gcPrice}/mo` },
+                        { l: 'Rating',    v: `${p.rating}/5 · ${p.reviews.toLocaleString()} reviews` },
+                        { l: 'Discount',  v: p.discountPct > 0 ? `${p.discountPct}% off` : 'Standard pricing' },
+                      ] as { l: string; v: string }[]).map(({ l, v }) => (
+                        <div key={l}>
+                          <p className="text-[9px] font-bold text-muted uppercase tracking-[0.08em] mb-0.5">{l}</p>
+                          <p className="text-[12px] font-medium text-black">{v}</p>
+                        </div>
+                      ))}
+
+                      <div className="pt-2">
+                        <p className="text-[9px] font-bold text-muted uppercase tracking-[0.08em] mb-1.5">Tags</p>
+                        <div className="flex flex-wrap gap-1">
+                          {p.tags.slice(0, 4).map(t => (
+                            <span key={t} className="text-[9px] font-medium px-1.5 py-0.5 bg-surface rounded-full text-[#555]">{t}</span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <Link href={`/software/product/${p.slug}`}
+                        className="flex items-center justify-center gap-1.5 w-full text-[12px] font-semibold py-2 rounded-xl border border-accent/30 text-accent hover:bg-accent hover:text-white hover:border-accent transition-all mt-1">
+                        View Details <ArrowRight size={11} />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // ── Chatbot types ─────────────────────────────────────────────────────────────
 type Message = {
@@ -85,11 +388,11 @@ function searchProducts(query: string) {
   ).slice(0, 4);
 }
 
-// ── Browser-based caller ──────────────────────────────────────────────────────
+// ── Browser-based voice caller ────────────────────────────────────────────────
 function BrowserCaller({ onClose }: { onClose: () => void }) {
   const [callState, setCallState] = useState<'connecting' | 'active' | 'ended'>('connecting');
   const [duration,  setDuration]  = useState(0);
-  const [bars,      setBars]      = useState<number[]>(Array(18).fill(4));
+  const [bars,      setBars]      = useState<number[]>(Array(20).fill(4));
   const streamRef  = useRef<MediaStream | null>(null);
   const animRef    = useRef<number | null>(null);
 
@@ -99,34 +402,31 @@ function BrowserCaller({ onClose }: { onClose: () => void }) {
   }, []);
 
   useEffect(() => {
-    const simulateWave = () => {
-      setBars(Array(18).fill(0).map(() => Math.random() * 28 + 4));
-      animRef.current = requestAnimationFrame(simulateWave);
+    const simulate = () => {
+      setBars(Array(20).fill(0).map(() => Math.random() * 28 + 3));
+      animRef.current = requestAnimationFrame(simulate);
     };
-
     navigator.mediaDevices?.getUserMedia({ audio: true })
       .then(stream => {
         streamRef.current = stream;
         const ctx = new AudioContext();
         const src = ctx.createMediaStreamSource(stream);
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 64;
-        src.connect(analyser);
-        const data = new Uint8Array(analyser.frequencyBinCount);
+        const an  = ctx.createAnalyser();
+        an.fftSize = 64;
+        src.connect(an);
+        const data = new Uint8Array(an.frequencyBinCount);
         const draw = () => {
-          analyser.getByteFrequencyData(data);
-          setBars(Array.from(data.slice(0, 18)).map(v => Math.max(4, (v / 255) * 36)));
+          an.getByteFrequencyData(data);
+          setBars(Array.from(data.slice(0, 20)).map(v => Math.max(3, (v / 255) * 34)));
           animRef.current = requestAnimationFrame(draw);
         };
         animRef.current = requestAnimationFrame(draw);
         setTimeout(() => setCallState('active'), 1800);
       })
       .catch(() => {
-        // no mic — use simulated waveform
         setTimeout(() => setCallState('active'), 1800);
-        animRef.current = requestAnimationFrame(simulateWave);
+        animRef.current = requestAnimationFrame(simulate);
       });
-
     return stopAll;
   }, [stopAll]);
 
@@ -139,64 +439,50 @@ function BrowserCaller({ onClose }: { onClose: () => void }) {
   const fmt = (s: number) =>
     `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
-  const hangUp = () => {
-    stopAll();
-    setCallState('ended');
-    setTimeout(onClose, 1200);
-  };
+  const hangUp = () => { stopAll(); setCallState('ended'); setTimeout(onClose, 1200); };
+
+  const ringColor = callState === 'active' ? '#34D399' : callState === 'connecting' ? '#FCD34D' : '#F87171';
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-[#0f0f1a] rounded-2xl p-8 w-full max-w-[300px] text-center shadow-2xl border border-white/8">
-
-        {/* Zain avatar with animated ring */}
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
+      <div className="bg-[#0c0c1a] rounded-2xl px-8 py-10 w-full max-w-[300px] text-center shadow-2xl border border-white/8">
+        {/* Zain avatar + ring animation */}
         <div className="relative inline-flex items-center justify-center mb-5">
-          {callState === 'active' && (
+          {callState !== 'ended' && (
             <>
-              <div className="absolute w-20 h-20 rounded-full border-2 border-green-400/30 animate-ping" />
-              <div className="absolute w-24 h-24 rounded-full border border-green-400/15 animate-ping" style={{ animationDelay: '0.4s' }} />
+              <div className="absolute w-20 h-20 rounded-full border-2 animate-ping"
+                style={{ borderColor: ringColor + '50' }} />
+              <div className="absolute w-26 h-26 rounded-full border animate-ping"
+                style={{ borderColor: ringColor + '25', animationDelay: '0.5s', width: '6.5rem', height: '6.5rem' }} />
             </>
-          )}
-          {callState === 'connecting' && (
-            <div className="absolute w-20 h-20 rounded-full border-2 border-yellow-400/30 animate-ping" />
           )}
           <img src="/zain-avatar.svg" alt="Zain" className="w-16 h-16 rounded-full relative z-10" />
         </div>
 
         <p className="text-white font-semibold text-[16px] mb-0.5">Zain</p>
         <p className="text-white/40 text-[11px] mb-3">Software Gateway · Voice Agent</p>
-
-        <p className="text-[12px] font-medium mb-6" style={{
-          color: callState === 'connecting' ? '#FCD34D'
-               : callState === 'active'     ? '#34D399'
-               : '#F87171',
-        }}>
+        <p className="text-[12px] font-semibold mb-7" style={{ color: ringColor }}>
           {callState === 'connecting' ? 'Connecting…'
          : callState === 'active'     ? `Connected · ${fmt(duration)}`
          : 'Call ended'}
         </p>
 
         {/* Waveform */}
-        <div className="flex items-end justify-center gap-[3px] mb-8 h-10">
+        <div className="flex items-end justify-center gap-[3px] mb-8 h-9">
           {bars.map((h, i) => (
-            <div key={i}
-              className="rounded-full transition-all duration-75"
-              style={{
-                width: '3px',
-                height: callState === 'active' ? `${h}px` : '4px',
-                backgroundColor: callState === 'active' ? '#34D399'
-                               : callState === 'connecting' ? '#FCD34D'
-                               : '#F87171',
-                opacity: callState === 'active' ? 0.5 + (h / 36) * 0.5 : 0.3,
-              }}
-            />
+            <div key={i} className="rounded-full transition-all duration-75" style={{
+              width: '3px',
+              height: callState === 'active' ? `${h}px` : '3px',
+              backgroundColor: ringColor,
+              opacity: callState === 'active' ? 0.5 + (h / 34) * 0.5 : 0.25,
+            }} />
           ))}
         </div>
 
-        {/* Hang up button */}
         {callState !== 'ended' ? (
           <button onClick={hangUp}
-            className="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center mx-auto transition-colors shadow-lg shadow-red-500/30">
+            className="w-14 h-14 rounded-full flex items-center justify-center mx-auto transition-colors shadow-lg"
+            style={{ backgroundColor: '#EF4444', boxShadow: '0 4px 20px rgba(239,68,68,0.35)' }}>
             <PhoneOff size={20} className="text-white" />
           </button>
         ) : (
@@ -207,13 +493,13 @@ function BrowserCaller({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ── Chatbot panel ─────────────────────────────────────────────────────────────
+// ── Zain chatbot (full-height right drawer) ───────────────────────────────────
 function ZainChatbot({ defaultOpen }: { defaultOpen: boolean }) {
-  const [open,       setOpen]   = useState(defaultOpen);
-  const [calling,    setCalling] = useState(false);
-  const [input,      setInput]  = useState('');
-  const [messages,   setMsgs]   = useState<Message[]>([GREETING]);
-  const bottomRef               = useRef<HTMLDivElement>(null);
+  const [open,     setOpen]    = useState(defaultOpen);
+  const [calling,  setCalling] = useState(false);
+  const [input,    setInput]   = useState('');
+  const [messages, setMsgs]    = useState<Message[]>([GREETING]);
+  const bottomRef              = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -225,22 +511,22 @@ function ZainChatbot({ defaultOpen }: { defaultOpen: boolean }) {
     let reply: Message;
 
     if (q.includes('smart search') || q.includes('search software') || q.includes('find software')) {
-      reply = { role: 'assistant', text: 'Smart Search lets you browse all 50+ verified products, filter by category, and sort by price or rating.',
+      reply = { role: 'assistant', text: 'Smart Search lets you browse all 50+ products with AI-powered compatibility scoring.',
         toolLink: { label: 'Open Smart Search →', href: '/software' } };
     } else if (q.includes('strateg') || q.includes('roadmap') || q.includes('tech plan')) {
-      reply = { role: 'assistant', text: 'The Tech Strategy Builder generates a full implementation roadmap tailored to your business — in under a minute.',
-        toolLink: { label: 'Build My Tech Strategy →', href: '/software/report/strategy' } };
+      reply = { role: 'assistant', text: 'The Tech Strategy Builder creates a full implementation roadmap for your business in under a minute.',
+        toolLink: { label: 'Build My Strategy →', href: '/software/report/strategy' } };
     } else if (q.includes('requirement') || q.includes('rfp') || q.includes('procurement') || q.includes('document')) {
-      reply = { role: 'assistant', text: 'The Tech Requirement Builder creates a professional RFP-ready document you can share directly with software vendors.',
-        toolLink: { label: 'Build Requirements Doc →', href: '/software/report/requirements' } };
+      reply = { role: 'assistant', text: 'The Tech Requirement Builder generates a professional RFP-ready document you can share with vendors.',
+        toolLink: { label: 'Build Requirements →', href: '/software/report/requirements' } };
     } else if (q.includes('cost') || q.includes('saving') || q.includes('spend') || q.includes('budget') || q.includes('optim')) {
-      reply = { role: 'assistant', text: 'The Cost Optimizer benchmarks your software spend against GCC pricing to find savings opportunities instantly.',
+      reply = { role: 'assistant', text: 'The Cost Optimizer benchmarks your spend against GCC market pricing to uncover savings fast.',
         toolLink: { label: 'Analyse My Spend →', href: 'https://enterprise-level-redesign.vercel.app?autoauth=zv2', external: true } };
     } else {
-      const results = searchProducts(text);
-      reply = results.length > 0
-        ? { role: 'assistant', text: `Found ${results.length} product${results.length > 1 ? 's' : ''} matching "${text}":`, products: results }
-        : { role: 'assistant', text: `I didn't find an exact match for "${text}". Try Smart Search to browse all 50+ products.`,
+      const hits = searchProducts(text);
+      reply = hits.length > 0
+        ? { role: 'assistant', text: `Found ${hits.length} product${hits.length > 1 ? 's' : ''} matching "${text}":`, products: hits }
+        : { role: 'assistant', text: `I didn't find an exact match for "${text}". Try Smart Search to explore all 50+ products.`,
             toolLink: { label: 'Try Smart Search →', href: '/software' } };
     }
 
@@ -250,77 +536,93 @@ function ZainChatbot({ defaultOpen }: { defaultOpen: boolean }) {
 
   const quickAction = (tool: typeof tools[0]) => {
     const reply: Message = { role: 'assistant', text: tool.desc,
-      toolLink: { label: `Launch ${tool.label} →`, href: tool.href, external: tool.external } };
+      toolLink: { label: `Launch ${tool.label} →`, href: tool.href ?? '/software', external: tool.external } };
     setMsgs(prev => [...prev, { role: 'user', text: tool.label }, reply]);
   };
 
   return (
     <>
-      {/* FAB buttons */}
+      {/* ── FABs: Zain avatar (chat) on top, green phone below ── */}
       <div className="fixed bottom-6 right-6 flex flex-col items-end gap-3 z-50">
-        {/* Call */}
-        <button onClick={() => setCalling(true)}
-          title="Talk to Zain"
-          className="w-11 h-11 rounded-full bg-white border border-black/12 shadow-lg flex items-center justify-center text-[#555] hover:text-black hover:shadow-xl transition-all">
-          <Phone size={16} />
-        </button>
-        {/* Chat toggle */}
+        {/* Zain avatar — opens chat */}
         <button onClick={() => setOpen(o => !o)}
-          className="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all"
-          style={{ background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' }}>
-          {open ? <X size={18} /> : <MessageSquare size={18} />}
+          title="Chat with Zain"
+          className="w-12 h-12 rounded-full shadow-xl hover:shadow-2xl transition-all ring-2 ring-white/80 overflow-hidden"
+          style={{ boxShadow: open ? '0 0 0 3px var(--color-accent)' : '' }}>
+          <img src="/zain-avatar.svg" alt="Zain" className="w-full h-full object-cover" />
+        </button>
+        {/* Green call button — bottom */}
+        <button onClick={() => setCalling(true)}
+          title="Call Zain"
+          className="w-11 h-11 rounded-full flex items-center justify-center text-white shadow-lg hover:shadow-xl transition-all"
+          style={{ backgroundColor: '#16A34A', boxShadow: '0 4px 14px rgba(22,163,74,0.35)' }}>
+          <Phone size={16} strokeWidth={2} />
         </button>
       </div>
 
-      {/* Chat panel */}
-      <div className={`fixed bottom-24 right-6 w-[360px] z-40 flex flex-col rounded-xl overflow-hidden bg-white border border-black/10 shadow-2xl transition-all duration-300 origin-bottom-right ${
-        open ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'
-      }`} style={{ maxHeight: '540px' }}>
+      {/* ── Full-height right drawer ── */}
+      {/* Scrim */}
+      {open && (
+        <div className="fixed inset-0 z-[39] bg-black/20 backdrop-blur-[2px] transition-opacity"
+          onClick={() => setOpen(false)} />
+      )}
 
-        {/* Header */}
-        <div className="flex items-center gap-2.5 px-4 py-3 border-b border-black/8"
-          style={{ background: 'linear-gradient(135deg, #1a1a2e, #16213e)' }}>
-          <img src="/zain-avatar.svg" alt="Zain" className="w-8 h-8 rounded-full shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-semibold text-white leading-none">Zain</p>
-            <p className="text-[10px] text-white/50 mt-0.5">Software Gateway · AI Assistant</p>
+      <div className={`fixed top-0 right-0 h-screen z-40 flex flex-col bg-white border-l border-black/10 shadow-2xl transition-transform duration-300 ease-in-out ${
+        open ? 'translate-x-0' : 'translate-x-full'
+      }`} style={{ width: 'min(420px, 95vw)' }}>
+
+        {/* Drawer header */}
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-black/8 shrink-0"
+          style={{ background: 'linear-gradient(135deg, #0f0f1e 0%, #1a1a3a 100%)' }}>
+          <div className="relative shrink-0">
+            <img src="/zain-avatar.svg" alt="Zain" className="w-10 h-10 rounded-full" />
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-400 border-2 border-[#1a1a3a]" />
           </div>
-          <div className="w-2 h-2 rounded-full bg-green-400 mr-1" title="Online" />
-          <button onClick={() => setOpen(false)} className="text-white/40 hover:text-white transition-colors">
-            <X size={15} />
+          <div className="flex-1 min-w-0">
+            <p className="text-[14px] font-semibold text-white leading-none">Zain</p>
+            <p className="text-[11px] text-white/50 mt-0.5">Software Gateway · AI Assistant · Online</p>
+          </div>
+          <button onClick={() => setOpen(false)}
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors shrink-0">
+            <X size={16} />
           </button>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ minHeight: 0 }}>
+        {/* Messages area */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4" style={{ minHeight: 0 }}>
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className="max-w-[88%]">
+              <div className="max-w-[90%]">
                 {msg.role === 'assistant' && (
-                  <img src="/zain-avatar.svg" alt="Zain" className="w-5 h-5 rounded-full mb-1.5" />
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <img src="/zain-avatar.svg" alt="Zain" className="w-5 h-5 rounded-full" />
+                    <span className="text-[10px] font-semibold text-muted">Zain</span>
+                  </div>
                 )}
-                <div className={`px-3 py-2 rounded-xl text-[12px] leading-relaxed whitespace-pre-line ${
+                <div className={`px-4 py-3 rounded-2xl text-[13px] leading-relaxed whitespace-pre-line ${
                   msg.role === 'user'
                     ? 'text-white rounded-br-sm'
-                    : 'bg-[#f5f5f7] text-[#333] rounded-bl-sm'
-                }`} style={msg.role === 'user' ? { background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' } : {}}>
+                    : 'bg-[#f4f4f6] text-[#1a1a1a] rounded-bl-sm'
+                }`} style={msg.role === 'user'
+                    ? { background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' }
+                    : {}}>
                   {msg.text}
                 </div>
 
-                {/* Product results */}
+                {/* Product cards */}
                 {msg.products && (
                   <div className="mt-2 space-y-1.5">
                     {msg.products.map(p => (
                       <Link key={p.id} href={`/software/product/${p.slug}`}
-                        className="flex items-center gap-2.5 bg-white border border-black/8 rounded-lg px-3 py-2 hover:border-accent/30 hover:bg-accent/4 transition-all group">
-                        <div className="w-7 h-7 rounded-md bg-zinc-100 flex items-center justify-center text-[10px] font-bold text-zinc-600 shrink-0">
+                        className="flex items-center gap-3 bg-white border border-black/8 rounded-xl px-3.5 py-2.5 hover:border-accent/30 hover:bg-accent/4 transition-all group">
+                        <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center text-[10px] font-bold text-zinc-600 shrink-0">
                           {p.logo}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[12px] font-semibold text-black leading-none group-hover:text-accent transition-colors">{p.name}</p>
                           <p className="text-[10px] text-muted mt-0.5 truncate">{p.category}</p>
                         </div>
-                        <ChevronRight size={11} className="text-muted group-hover:text-accent shrink-0 transition-colors" />
+                        <ChevronRight size={12} className="text-muted group-hover:text-accent shrink-0 transition-colors" />
                       </Link>
                     ))}
                   </div>
@@ -330,13 +632,13 @@ function ZainChatbot({ defaultOpen }: { defaultOpen: boolean }) {
                 {msg.toolLink && (
                   msg.toolLink.external ? (
                     <a href={msg.toolLink.href} target="_blank" rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg text-white"
+                      className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-semibold px-4 py-2 rounded-xl text-white"
                       style={{ background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' }}>
                       {msg.toolLink.label} <ExternalLink size={11} />
                     </a>
                   ) : (
                     <Link href={msg.toolLink.href}
-                      className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg text-white"
+                      className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-semibold px-4 py-2 rounded-xl text-white"
                       style={{ background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' }}>
                       {msg.toolLink.label} <ArrowRight size={11} />
                     </Link>
@@ -346,36 +648,53 @@ function ZainChatbot({ defaultOpen }: { defaultOpen: boolean }) {
             </div>
           ))}
 
-          {/* Quick actions after greeting */}
+          {/* Quick action buttons after greeting */}
           {messages.length === 1 && (
-            <div className="grid grid-cols-2 gap-1.5 mt-1">
+            <div className="grid grid-cols-2 gap-2 mt-1">
               {tools.map(t => (
                 <button key={t.label} onClick={() => quickAction(t)}
-                  className="text-left px-2.5 py-2 border border-black/8 rounded-lg text-[11px] font-medium text-[#333] hover:border-black/20 hover:bg-[#f5f5f7] transition-all leading-snug">
+                  className="text-left px-3 py-2.5 border border-black/8 rounded-xl text-[12px] font-medium text-[#333] hover:border-black/20 hover:bg-[#f4f4f6] transition-all leading-snug">
+                  <span className="block text-muted text-[10px] mb-0.5">
+                    {t.label === 'Smart Search' ? '🔍' : t.label === 'Tech Strategy Builder' ? '📊' : t.label === 'Tech Requirement Builder' ? '📋' : '💰'}
+                  </span>
                   {t.label}
                 </button>
               ))}
             </div>
           )}
+
           <div ref={bottomRef} />
         </div>
 
+        {/* Suggested queries bar */}
+        {messages.length <= 3 && (
+          <div className="px-5 py-2 border-t border-black/6 flex gap-2 overflow-x-auto shrink-0" style={{ scrollbarWidth: 'none' }}>
+            {['Find CRM', 'ERP options', 'HR software', 'Best for SME'].map(q => (
+              <button key={q} onClick={() => send(q)}
+                className="text-[11px] font-medium px-2.5 py-1 rounded-full border border-black/10 text-[#555] hover:border-accent/30 hover:text-accent whitespace-nowrap transition-all shrink-0">
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Input */}
-        <div className="border-t border-black/8 px-3 py-2.5 flex items-center gap-2">
+        <div className="border-t border-black/8 px-4 py-3.5 flex items-center gap-2.5 shrink-0 bg-white">
+          <img src="/zain-avatar.svg" alt="Zain" className="w-7 h-7 rounded-full shrink-0" />
           <input value={input} onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); } }}
-            placeholder="Ask about any software…"
-            className="flex-1 text-[12px] bg-[#f5f5f7] border border-black/8 rounded-lg px-3 py-2 outline-none focus:border-accent/30 transition-all"
+            placeholder="Ask Zain anything about software…"
+            className="flex-1 text-[13px] bg-[#f4f4f6] border border-black/8 rounded-xl px-3.5 py-2.5 outline-none focus:border-accent/30 focus:bg-white transition-all"
           />
           <button onClick={() => send(input)} disabled={!input.trim()}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-white disabled:opacity-40 shrink-0"
-            style={{ background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' }}>
-            <Send size={13} />
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-white disabled:opacity-40 shrink-0 transition-all"
+            style={{ background: input.trim() ? 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' : '#e5e5e5' }}>
+            <Send size={14} />
           </button>
         </div>
       </div>
 
-      {/* Browser caller overlay */}
+      {/* Voice caller overlay */}
       {calling && <BrowserCaller onClose={() => setCalling(false)} />}
     </>
   );
@@ -383,6 +702,8 @@ function ZainChatbot({ defaultOpen }: { defaultOpen: boolean }) {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function SoftwareGatewayPage() {
+  const [smartSearchOpen, setSmartSearchOpen] = useState(false);
+
   return (
     <div className="bg-white min-h-screen font-sans">
 
@@ -407,7 +728,7 @@ export default function SoftwareGatewayPage() {
         </div>
       </header>
 
-      {/* ── Main section — header + logo + cards all on first fold ── */}
+      {/* ── Main section — all on first fold ── */}
       <section className="relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 100%)' }}>
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] opacity-[0.07]"
           style={{ background: 'radial-gradient(ellipse, #007AFF 0%, transparent 70%)' }} />
@@ -418,7 +739,7 @@ export default function SoftwareGatewayPage() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-6">
             <div>
               <div className="inline-flex items-center gap-2 bg-accent text-white px-3 py-1.5 rounded-sm text-[10px] font-bold tracking-[0.1em] uppercase mb-4 shadow-sm shadow-accent/20">
-                <Zap size={11} strokeWidth={2.5} /> Software Gateway
+                <Zap size={11} strokeWidth={2.5} /> Exclusive Software Gateway
               </div>
               <h2 className="text-[24px] sm:text-[32px] font-medium text-black tracking-tight leading-[1.1] mb-2.5">
                 Procure the right software.<br />
@@ -455,68 +776,60 @@ export default function SoftwareGatewayPage() {
 
           {/* 4 tool cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-            {tools.map((tool, i) => (
-              tool.external ? (
-                <a key={tool.label} href={tool.href} target="_blank" rel="noopener noreferrer"
-                  className="relative border border-black/8 rounded-sm p-5 hover:border-black/20 hover:shadow-md transition-all group bg-white overflow-hidden cursor-pointer">
+            {tools.map((tool, i) => {
+              const accentColor = tool.color === 'var(--color-accent)' ? '#007AFF' : tool.color;
+              const shared = `relative border border-black/8 rounded-sm p-5 hover:border-black/20 hover:shadow-md transition-all overflow-hidden bg-white group`;
+
+              const inner = (
+                <>
                   <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ background: `radial-gradient(circle, ${tool.color}20 0%, transparent 70%)` }} />
+                    style={{ background: `radial-gradient(circle, ${accentColor}20 0%, transparent 70%)` }} />
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-10 h-10 rounded-sm flex items-center justify-center relative"
-                      style={{ backgroundColor: tool.color + '12' }}>
+                      style={{ backgroundColor: accentColor + '14' }}>
                       <span style={{ color: tool.color }}>{tool.icon}</span>
                       <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white border-2 flex items-center justify-center text-[8px] font-bold"
-                        style={{ color: tool.color, borderColor: tool.color + '40' }}>
+                        style={{ color: accentColor, borderColor: accentColor + '40' }}>
                         {i + 1}
                       </span>
                     </div>
                     <span className="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0"
-                      style={{ color: tool.color, backgroundColor: tool.color + '10', border: `1px solid ${tool.color}25` }}>
+                      style={{ color: accentColor, backgroundColor: accentColor + '12', border: `1px solid ${accentColor}28` }}>
                       {tool.badge}
                     </span>
                   </div>
                   <h3 className="text-[14px] font-semibold text-black mb-1.5 leading-tight">{tool.label}</h3>
                   <p className="text-[12px] text-[#555] leading-[1.6] mb-4">{tool.desc}</p>
                   <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold group-hover:gap-2 transition-all"
-                    style={{ color: tool.color }}>
-                    Get started <ExternalLink size={11} />
+                    style={{ color: accentColor }}>
+                    Get started {tool.external ? <ExternalLink size={11} /> : <ArrowRight size={11} />}
                   </span>
-                </a>
-              ) : (
-                <Link key={tool.label} href={tool.href}
-                  className="relative border border-black/8 rounded-sm p-5 hover:border-black/20 hover:shadow-md transition-all group bg-white overflow-hidden">
-                  <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ background: `radial-gradient(circle, ${tool.color === 'var(--color-accent)' ? '#007AFF' : tool.color}20 0%, transparent 70%)` }} />
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-sm flex items-center justify-center relative"
-                      style={{ backgroundColor: tool.color === 'var(--color-accent)' ? 'rgba(0,122,255,0.08)' : tool.color + '12' }}>
-                      <span style={{ color: tool.color }}>{tool.icon}</span>
-                      <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white border-2 flex items-center justify-center text-[8px] font-bold"
-                        style={{
-                          color: tool.color === 'var(--color-accent)' ? 'var(--color-accent)' : tool.color,
-                          borderColor: tool.color === 'var(--color-accent)' ? 'rgba(0,122,255,0.35)' : tool.color + '40',
-                        }}>
-                        {i + 1}
-                      </span>
-                    </div>
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0"
-                      style={{
-                        color: tool.color === 'var(--color-accent)' ? 'var(--color-accent)' : tool.color,
-                        backgroundColor: tool.color === 'var(--color-accent)' ? 'rgba(0,122,255,0.08)' : tool.color + '10',
-                        border: `1px solid ${tool.color === 'var(--color-accent)' ? 'rgba(0,122,255,0.2)' : tool.color + '25'}`,
-                      }}>
-                      {tool.badge}
-                    </span>
-                  </div>
-                  <h3 className="text-[14px] font-semibold text-black mb-1.5 leading-tight">{tool.label}</h3>
-                  <p className="text-[12px] text-[#555] leading-[1.6] mb-4">{tool.desc}</p>
-                  <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold group-hover:gap-2 transition-all"
-                    style={{ color: tool.color === 'var(--color-accent)' ? 'var(--color-accent)' : tool.color }}>
-                    Get started <ArrowRight size={11} />
-                  </span>
+                </>
+              );
+
+              if (tool.href === null) {
+                // Smart Search — opens modal
+                return (
+                  <button key={tool.label} className={`${shared} text-left cursor-pointer`}
+                    onClick={() => setSmartSearchOpen(true)}>
+                    {inner}
+                  </button>
+                );
+              }
+              if (tool.external) {
+                return (
+                  <a key={tool.label} href={tool.href} target="_blank" rel="noopener noreferrer"
+                    className={`${shared} cursor-pointer`}>
+                    {inner}
+                  </a>
+                );
+              }
+              return (
+                <Link key={tool.label} href={tool.href} className={shared}>
+                  {inner}
                 </Link>
-              )
-            ))}
+              );
+            })}
           </div>
 
           {/* Stats strip */}
@@ -539,6 +852,9 @@ export default function SoftwareGatewayPage() {
           </p>
         </div>
       </section>
+
+      {/* ── Smart Search modal ── */}
+      {smartSearchOpen && <SmartSearchModal onClose={() => setSmartSearchOpen(false)} />}
 
       {/* ── Zain chatbot + caller ── */}
       <ZainChatbot defaultOpen={true} />
