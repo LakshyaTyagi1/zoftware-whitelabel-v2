@@ -716,20 +716,29 @@ export default function SoftwareGatewayPage() {
               </div>
               <h3 className="text-[13px] font-semibold text-black mb-1 leading-snug">AI Productivity &amp; Collaboration Hub</h3>
               <p className="text-[10px] text-muted mb-3 leading-snug">Top AI tools trusted by 10,000+ businesses</p>
-              {/* Brand-color logo badges */}
+              {/* Brand logo badges */}
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 {[
-                  { name: 'Claude',   abbr: 'Cl', bg: '#CC785C', fg: '#fff' },
-                  { name: 'ChatGPT',  abbr: 'G',  bg: '#10A37F', fg: '#fff' },
-                  { name: 'Copilot',  abbr: 'Co', bg: '#0078D4', fg: '#fff' },
-                  { name: 'Notion',   abbr: 'N',  bg: '#000',    fg: '#fff' },
-                  { name: 'Gemini',   abbr: 'Ge', bg: '#4285F4', fg: '#fff' },
+                  { name: 'Claude',  abbr: 'Cl', bg: '#CC785C', logo: 'https://logo.clearbit.com/anthropic.com' },
+                  { name: 'ChatGPT', abbr: 'G',  bg: '#10A37F', logo: 'https://logo.clearbit.com/openai.com' },
+                  { name: 'Copilot', abbr: 'Co', bg: '#0078D4', logo: 'https://logo.clearbit.com/microsoft.com' },
+                  { name: 'Notion',  abbr: 'N',  bg: '#191919', logo: 'https://logo.clearbit.com/notion.so' },
+                  { name: 'Gemini',  abbr: 'Ge', bg: '#fff',    logo: 'https://logo.clearbit.com/gemini.google.com' },
                 ].map(t => (
-                  <div key={t.name} title={t.name}
-                    className="flex flex-col items-center gap-0.5">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold shadow-sm"
-                      style={{ backgroundColor: t.bg, color: t.fg }}>
-                      {t.abbr}
+                  <div key={t.name} title={t.name} className="flex flex-col items-center gap-0.5">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden shadow-sm border border-black/6 flex items-center justify-center"
+                      style={{ backgroundColor: t.bg }}>
+                      <img
+                        src={t.logo}
+                        alt={t.name}
+                        className="w-7 h-7 object-contain"
+                        onError={e => {
+                          const el = e.currentTarget;
+                          el.style.display = 'none';
+                          const parent = el.parentElement!;
+                          parent.innerHTML = `<span style="color:#fff;font-size:10px;font-weight:700">${t.abbr}</span>`;
+                        }}
+                      />
                     </div>
                     <span className="text-[8px] text-muted">{t.name}</span>
                   </div>
