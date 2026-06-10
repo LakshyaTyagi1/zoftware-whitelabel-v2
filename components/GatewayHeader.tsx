@@ -6,8 +6,7 @@ import { usePathname } from 'next/navigation';
 import { ArrowLeft, Package, Search, Zap, ChevronDown, ExternalLink, User } from 'lucide-react';
 import UserProfilePanel from './UserProfilePanel';
 import ThemeToggle from './ThemeToggle';
-
-const OPEN_TICKETS = 1;
+import { getOpenCount } from '@/lib/zain-tickets';
 
 const breadcrumbMap: Record<string, string> = {
   '/software': 'Browse Software',
@@ -19,7 +18,15 @@ export default function GatewayHeader() {
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [openTickets, setOpenTickets] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setOpenTickets(getOpenCount() + 1); // +1 for existing mock ticket
+    const handler = () => setOpenTickets(getOpenCount() + 1);
+    window.addEventListener('zg-tickets-updated', handler);
+    return () => window.removeEventListener('zg-tickets-updated', handler);
+  }, []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -89,9 +96,9 @@ export default function GatewayHeader() {
                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold"
                   style={{ background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' }}>
                   RS
-                  {OPEN_TICKETS > 0 && (
+                  {openTickets > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#ea580c] border-2 border-white flex items-center justify-center">
-                      <span className="text-[7px] font-bold text-white leading-none">{OPEN_TICKETS}</span>
+                      <span className="text-[7px] font-bold text-white leading-none">{openTickets}</span>
                     </span>
                   )}
                 </div>

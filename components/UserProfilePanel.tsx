@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getTickets, type ZGTicket } from '@/lib/zain-tickets';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -177,6 +178,14 @@ export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
   const [expandCompany, setExpandCompany] = useState(false);
   const [expandedHolders, setExpandedHolders] = useState<string[]>([]);
   const [cartItems, setCartItems] = useState(mockCart);
+  const [liveTickets, setLiveTickets] = useState<ZGTicket[]>([]);
+
+  useEffect(() => {
+    setLiveTickets(getTickets());
+    const handler = () => setLiveTickets(getTickets());
+    window.addEventListener('zg-tickets-updated', handler);
+    return () => window.removeEventListener('zg-tickets-updated', handler);
+  }, []);
 
   const toggleHolders = (id: string) =>
     setExpandedHolders(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -190,7 +199,12 @@ export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
     router.push('/dubai-chamber');
   };
 
-  const openTickets = mockTickets.filter(t => t.status === 'Open').length;
+  // Merge mock tickets with live Zain-created tickets
+  const allTickets = [...liveTickets.map(t => ({
+    id: t.id, subject: t.subject, status: t.status,
+    priority: t.priority, created: t.created, lastUpdate: 'Just now', agent: t.agent,
+  })), ...mockTickets];
+  const openTickets = allTickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
   const cartTotal = cartItems.reduce((s, i) => s + i.price, 0);
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
@@ -678,7 +692,7 @@ export default function UserProfilePanel({ onClose }: { onClose: () => void }) {
                       </button>
                     </div>
                     <div className="space-y-3">
-                      {mockTickets.map(t => (
+                      {allTickets.map(t => (
                         <div key={t.id} className="border border-black/8 rounded-sm p-5 hover:border-black/16 transition-colors">
                           <div className="flex items-start justify-between gap-2 mb-2">
                             <p className="text-[13px] font-semibold text-black">{t.subject}</p>

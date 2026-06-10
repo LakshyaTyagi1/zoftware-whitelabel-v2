@@ -2,19 +2,21 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Phone, X, Send, ArrowRight, ExternalLink, ChevronRight, PhoneOff, Mic } from 'lucide-react';
+import { Phone, X, Send, ArrowRight, ExternalLink, ChevronRight, PhoneOff, Mic, Ticket } from 'lucide-react';
 import { gatewayProducts } from '@/data/gateway-products';
+import { createTicket } from '@/lib/zain-tickets';
 
 type Message = {
   role: 'assistant' | 'user';
   text: string;
   products?: typeof gatewayProducts;
   toolLink?: { label: string; href: string; external?: boolean };
+  ticketId?: string;
 };
 
 const GREETING: Message = {
   role: 'assistant',
-  text: "Hi! I'm Zain, your Software Gateway assistant. I can help you find the right software, build a requirements doc, or create a tech strategy.\n\nWhat are you looking for?",
+  text: "Hi! I'm Zain, your Software Gateway assistant powered by AI. I can help you find the right software, build a strategy, or answer procurement questions.\n\nWhat are you looking for?",
 };
 
 const QUICK_TOOLS = [
@@ -133,45 +135,83 @@ function BrowserCaller({ onClose }: { onClose: () => void }) {
   );
 }
 
+// ── Typing indicator ──────────────────────────────────────────────────────────
+function TypingDots() {
+  return (
+    <div className="flex items-center gap-1.5 px-4 py-3 bg-[#f4f4f6] rounded-2xl rounded-bl-sm w-fit">
+      {[0, 1, 2].map(i => (
+        <div key={i} className="w-1.5 h-1.5 rounded-full bg-zinc-400"
+          style={{ animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+      ))}
+      <style>{`@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}`}</style>
+    </div>
+  );
+}
+
 // ── ZainChatbot FABs + drawer ─────────────────────────────────────────────────
 export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boolean }) {
-  const [open,    setOpen]   = useState(defaultOpen);
+  const [open,    setOpen]    = useState(defaultOpen);
   const [calling, setCalling] = useState(false);
-  const [input,   setInput]  = useState('');
-  const [messages, setMsgs]  = useState<Message[]>([GREETING]);
+  const [input,   setInput]   = useState('');
+  const [loading, setLoading] = useState(false);
+  const [messages, setMsgs]   = useState<Message[]>([GREETING]);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, loading]);
 
-  const send = (text: string) => {
-    if (!text.trim()) return;
-    const q = text.toLowerCase();
-    let reply: Message;
-
-    if (q.includes('smart search') || q.includes('search software') || q.includes('find software')) {
-      reply = { role: 'assistant', text: 'Smart Search lets you browse all 50+ products with AI-powered compatibility scoring.',
-        toolLink: { label: 'Open Smart Search →', href: '/software' } };
-    } else if (q.includes('strateg') || q.includes('roadmap') || q.includes('tech plan')) {
-      reply = { role: 'assistant', text: 'The Tech Strategy Builder creates a full implementation roadmap for your business in under a minute.',
-        toolLink: { label: 'Build My Strategy →', href: '/software?tool=strategy' } };
-    } else if (q.includes('requirement') || q.includes('rfp') || q.includes('procurement') || q.includes('document')) {
-      reply = { role: 'assistant', text: 'The Tech Requirement Builder generates a professional RFP-ready document you can share with vendors.',
-        toolLink: { label: 'Build Requirements →', href: '/software?tool=requirements' } };
-    } else if (q.includes('cost') || q.includes('saving') || q.includes('spend') || q.includes('budget') || q.includes('optim')) {
-      reply = { role: 'assistant', text: 'The Cost Optimizer benchmarks your spend against GCC market pricing to uncover savings fast.',
-        toolLink: { label: 'Analyse My Spend →', href: 'https://enterprise-level-redesign.vercel.app?autoauth=zv2', external: true } };
-    } else {
-      const hits = searchProducts(text);
-      reply = hits.length > 0
-        ? { role: 'assistant', text: `Found ${hits.length} product${hits.length > 1 ? 's' : ''} matching "${text}":`, products: hits }
-        : { role: 'assistant', text: `I didn't find an exact match for "${text}". Try Smart Search to explore all 50+ products.`,
-            toolLink: { label: 'Try Smart Search →', href: '/software' } };
-    }
-
-    setMsgs(prev => [...prev, { role: 'user', text }, reply]);
+  const send = async (text: string) => {
+    if (!text.trim() || loading) return;
+    const userMsg: Message = { role: 'user', text };
+    const history = [...messages, userMsg];
+    setMsgs(history);
     setInput('');
+    setLoading(true);
+
+    // Quick local product search to augment context
+    const localHits = searchProducts(text);
+
+    try {
+      const res = await fetch('/api/zain-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history.map(m => ({ role: m.role, text: m.text })) }),
+      });
+
+      const data = await res.json();
+
+      let reply: Message = {
+        role: 'assistant',
+        text: data.text,
+        toolLink: data.toolLink ?? undefined,
+      };
+
+      // Attach local product results if AI didn't provide a tool link and we found matches
+      if (!data.toolLink && localHits.length > 0 && !data.escalate) {
+        reply.products = localHits;
+      }
+
+      // Auto-create ticket if AI flags escalation
+      if (data.escalate) {
+        const ticket = createTicket(
+          `Chat inquiry: ${text.slice(0, 80)}`,
+          `User asked: "${text}"\n\nConversation started at ${new Date().toLocaleString()}`
+        );
+        reply.text = data.text;
+        reply.ticketId = ticket.id;
+      }
+
+      setMsgs(prev => [...prev, reply]);
+    } catch {
+      setMsgs(prev => [...prev, {
+        role: 'assistant',
+        text: "Sorry, I'm having trouble connecting. Let me raise a support ticket for you.",
+        ticketId: createTicket(`Chat inquiry: ${text.slice(0, 80)}`, `User asked: "${text}"`).id,
+      }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const quickAction = (tool: typeof QUICK_TOOLS[0]) => {
@@ -240,6 +280,18 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
                 }`} style={msg.role === 'user' ? { background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' } : {}}>
                   {msg.text}
                 </div>
+
+                {/* Ticket created badge */}
+                {msg.ticketId && (
+                  <div className="mt-2 flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-3 py-2.5">
+                    <Ticket size={13} className="text-orange-500 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-semibold text-orange-700">Support ticket created</p>
+                      <p className="text-[10px] text-orange-500">{msg.ticketId} · Deepa Rawat will follow up</p>
+                    </div>
+                  </div>
+                )}
+
                 {msg.products && (
                   <div className="mt-2 space-y-1.5">
                     {msg.products.map(p => (
@@ -274,8 +326,21 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
             </div>
           ))}
 
+          {/* Typing indicator */}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="max-w-[90%]">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <img src="/zain-avatar.svg" alt="Zain" className="w-5 h-5 rounded-full" />
+                  <span className="text-[10px] font-semibold text-muted">Zain</span>
+                </div>
+                <TypingDots />
+              </div>
+            </div>
+          )}
+
           {/* Quick action grid after greeting */}
-          {messages.length === 1 && (
+          {messages.length === 1 && !loading && (
             <div className="grid grid-cols-2 gap-2 mt-1">
               {QUICK_TOOLS.map(t => (
                 <button key={t.label} onClick={() => quickAction(t)}
@@ -290,7 +355,7 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
         </div>
 
         {/* Suggested chips */}
-        {messages.length <= 3 && (
+        {messages.length <= 3 && !loading && (
           <div className="px-5 py-2 border-t border-black/6 flex gap-2 overflow-x-auto shrink-0" style={{ scrollbarWidth: 'none' }}>
             {SUGGESTED.map(q => (
               <button key={q} onClick={() => send(q)}
@@ -307,10 +372,11 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
           <input value={input} onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); } }}
             placeholder="Ask Zain anything about software…"
-            className="flex-1 text-[13px] bg-[#f4f4f6] border border-black/8 rounded-xl px-3.5 py-2.5 outline-none focus:border-accent/30 focus:bg-white transition-all" />
-          <button onClick={() => send(input)} disabled={!input.trim()}
+            disabled={loading}
+            className="flex-1 text-[13px] bg-[#f4f4f6] border border-black/8 rounded-xl px-3.5 py-2.5 outline-none focus:border-accent/30 focus:bg-white transition-all disabled:opacity-60" />
+          <button onClick={() => send(input)} disabled={!input.trim() || loading}
             className="w-9 h-9 rounded-xl flex items-center justify-center text-white disabled:opacity-40 shrink-0 transition-all"
-            style={{ background: input.trim() ? 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' : '#e5e5e5' }}>
+            style={{ background: input.trim() && !loading ? 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' : '#e5e5e5' }}>
             <Send size={14} />
           </button>
         </div>
