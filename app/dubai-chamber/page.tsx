@@ -111,7 +111,10 @@ export default function DubaiChamberPage() {
 
   useEffect(() => {
     const stored = typeof window !== 'undefined' && localStorage.getItem(AUTH_KEY);
-    if (stored === 'true') setAuthed(true);
+    if (stored === 'true') {
+      document.cookie = 'zg_auth=1; path=/; max-age=86400; SameSite=Strict';
+      setAuthed(true);
+    }
     setAuthReady(true);
   }, []);
 
