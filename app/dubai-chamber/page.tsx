@@ -319,12 +319,6 @@ export default function DubaiChamberPage() {
         </div>
       )}
 
-      {/* ── Security notice ──────────────────────────────────────── */}
-      <div className="bg-[#FFF8E7] border-b border-[#F5C518]/20 py-2.5 px-4">
-        <p className="text-[12px] text-[#333] max-w-[1280px] mx-auto text-center">
-          <span className="font-semibold">Security notice:</span> Be cautious of what you see online. Deepfakes and AI-generated content can mislead. Stay alert, verify before you trust.
-        </p>
-      </div>
 
       {/* ── HERO ─────────────────────────────────────────────────── */}
       <section className="th-hero-section relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #f0f7ff 0%, #f8fbff 50%, #ffffff 100%)' }}>
