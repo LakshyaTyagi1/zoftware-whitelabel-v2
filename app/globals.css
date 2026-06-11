@@ -1,23 +1,321 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Fonts
+   ───────────────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
 @import "tailwindcss";
 
-@theme inline {
-  --color-accent: #007AFF;
-  --color-accent-hover: #0051D5;
-  --color-surface: #f5f5f7;
-  --color-surface-hover: #e5e5e7;
-  --color-muted: #86868b;
-  --color-border: rgba(0,0,0,0.08);
+/* ─────────────────────────────────────────────────────────────────────────
+   Semantic tokens  (@theme WITHOUT inline → utilities use CSS vars at runtime)
+   ───────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-accent:         #007AFF;
+  --color-accent-hover:   #0051D5;
+  --color-surface:        #f5f5f7;
+  --color-surface-hover:  #e5e5e7;
+  --color-muted:          #86868b;
+  --color-border:         rgba(0,0,0,0.08);
 }
 
-* { box-sizing: border-box; }
+/* ═══════════════════════════════════════════════════════════════════════════
+   THEME 1  —  Classic  (pure white · iOS blue · SF Pro · minimal flat)
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  --color-accent:         #007AFF;
+  --color-accent-hover:   #0051D5;
+  --color-surface:        #f5f5f7;
+  --color-surface-hover:  #e5e5e7;
+  --color-muted:          #86868b;
+  --color-border:         rgba(0,0,0,0.08);
 
+  --th-page-bg:           #ffffff;
+  --th-body-color:        #000000;
+  --th-card-bg:           #ffffff;
+  --th-card-border:       rgba(0,0,0,0.08);
+  --th-card-shadow:       none;
+  --th-input-bg:          #f5f5f7;
+  --th-input-border:      rgba(0,0,0,0.08);
+  --th-nav-bg:            rgba(255,255,255,0.95);
+  --th-nav-border:        rgba(0,0,0,0.06);
+  --th-nav-text:          #000000;
+  --th-nav-text-muted:    #86868b;
+  --th-nav-hover-bg:      #f5f5f7;
+  --th-nav-hover-text:    #000000;
+  --th-font:              -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THEME 2  —  Warm Studio
+   ─────────────────────────────────────────────────────────────────────────
+   Reference: Codename CRM · BordUp HR · FundView · DisputeFox
+   Language:  warm cream page · white elevated cards · rose-crimson accent ·
+              pill CTAs · large corner radius · Plus Jakarta Sans
+   ═══════════════════════════════════════════════════════════════════════════ */
+[data-theme="2"] {
+  /* ── Colour tokens ── */
+  --color-accent:         #DB3D5E;   /* Rose-crimson — drastically different from iOS blue */
+  --color-accent-hover:   #C22E4F;   /* Deeper rose on hover */
+  --color-surface:        #EDE6DF;   /* Warm stone — inputs, secondary surfaces */
+  --color-surface-hover:  #E1D9D0;   /* Slightly darker warm stone */
+  --color-muted:          #9E8E84;   /* Warm gray muted text */
+  --color-border:         #E2D9D0;   /* Warm stone border (replaces black/8) */
+
+  /* ── Theme-specific tokens ── */
+  --th-page-bg:           #F6F1EB;   /* Warm cream — the page canvas */
+  --th-body-color:        #1A130C;   /* Warm near-black body text */
+  --th-card-bg:           #FFFFFF;   /* Pure white cards lift off the cream page */
+  --th-card-border:       #E8E0D8;   /* Warm stone card border */
+  --th-card-shadow:       0 1px 2px rgba(60,30,10,0.04), 0 4px 16px rgba(60,30,10,0.07);
+  --th-input-bg:          #FAF7F4;   /* Slightly warm white for inputs */
+  --th-input-border:      #D8CEC4;   /* Visible warm border for inputs */
+  --th-nav-bg:            #FFFFFF;   /* Solid white nav — clean & bold contrast */
+  --th-nav-border:        #E2D9D0;   /* Warm stone bottom border */
+  --th-nav-text:          #1A130C;   /* Warm near-black nav text */
+  --th-nav-text-muted:    #9E8E84;   /* Warm gray for secondary nav items */
+  --th-nav-hover-bg:      #F6F1EB;   /* Same as page bg — feels like a lift */
+  --th-nav-hover-text:    #1A130C;
+  --th-font:              'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Base
+   ───────────────────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
 html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
-  background: #ffffff;
-  color: #000000;
+  font-family: var(--th-font);
+  background-color: var(--th-page-bg);
+  color: var(--th-body-color);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   Gateway header  (.gw-header / .gw-nav-* utility classes)
+   ───────────────────────────────────────────────────────────────────────── */
+.gw-header {
+  background: var(--th-nav-bg) !important;
+  border-bottom-color: var(--th-nav-border) !important;
+}
+.gw-nav-text    { color: var(--th-nav-text); }
+.gw-nav-muted   { color: var(--th-nav-text-muted); }
+.gw-nav-divider { background-color: var(--th-nav-border); }
+
+.gw-nav-link {
+  color: var(--th-nav-text-muted);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.gw-nav-link:hover {
+  color: var(--th-nav-hover-text);
+  background-color: var(--th-nav-hover-bg);
+}
+.gw-nav-accent {
+  color: var(--color-accent);
+  border-color: color-mix(in oklch, var(--color-accent) 28%, transparent);
+  transition: color 0.15s, background-color 0.15s;
+}
+.gw-nav-accent:hover {
+  color: var(--color-accent-hover);
+  background-color: color-mix(in oklch, var(--color-accent) 7%, transparent);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THEME 2  —  LIGHT OVERRIDES
+   Targeting hardcoded Tailwind classes in component files so the full UI
+   adopts the Warm Studio aesthetic without rewriting every component.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Page background ── */
+/* :not(.bg-white) prevents overriding pages that explicitly request a white bg */
+[data-theme="2"] .min-h-screen:not(.bg-white),
+[data-theme="2"] .min-h-full:not(.bg-white)    { background-color: var(--th-page-bg) !important; }
+
+/* ── Body text warm shift ── */
+[data-theme="2"] .text-black          { color: #1A130C !important; }
+[data-theme="2"] .hover\:text-black:hover { color: #1A130C !important; }
+
+/* ── Border colours → warm stone ── */
+[data-theme="2"] .border-black\/5,
+[data-theme="2"] .border-black\/8,
+[data-theme="2"] .border-black\/10,
+[data-theme="2"] .border-black\/12,
+[data-theme="2"] .border-black\/20    { border-color: var(--th-card-border) !important; }
+[data-theme="2"] .divide-black\/5  > * + *,
+[data-theme="2"] .divide-black\/8  > * + *,
+[data-theme="2"] .divide-black\/10 > * + * { border-color: var(--th-card-border) !important; }
+
+/* ── Cards — white cards with warm shadow on cream page ── */
+[data-theme="2"] .border {
+  border-color: var(--th-card-border) !important;
+  box-shadow: var(--th-card-shadow) !important;
+}
+
+/* ── bg-surface (semantic) ── */
+[data-theme="2"] .bg-surface               { background-color: var(--color-surface) !important; }
+[data-theme="2"] .hover\:bg-surface:hover  { background-color: var(--color-surface-hover) !important; }
+
+/* ── Inputs — warm & visible ── */
+[data-theme="2"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="2"] textarea,
+[data-theme="2"] select {
+  background-color: var(--th-input-bg) !important;
+  border-color: var(--th-input-border) !important;
+  color: #1A130C !important;
+}
+[data-theme="2"] input::placeholder,
+[data-theme="2"] textarea::placeholder { color: var(--color-muted) !important; }
+[data-theme="2"] input:focus,
+[data-theme="2"] textarea:focus,
+[data-theme="2"] select:focus {
+  background-color: #FFFFFF !important;
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-accent) 15%, transparent) !important;
+  outline: none;
+}
+[data-theme="2"] .focus\:bg-white:focus { background-color: #FFFFFF !important; }
+
+/* ── PRIMARY CTA BUTTONS — pill shape with rose fill ── */
+/*    Targets any element with bg-accent (the solid-colour CTAs)           */
+[data-theme="2"] .bg-accent {
+  border-radius: 100px !important;  /* pill */
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--color-accent) 30%, transparent) !important;
+}
+[data-theme="2"] .bg-accent:hover,
+[data-theme="2"] .hover\:bg-accent-hover:hover {
+  box-shadow: 0 4px 16px color-mix(in oklch, var(--color-accent) 40%, transparent) !important;
+  transform: translateY(-1px);
+}
+
+/* ── bg-black buttons (e.g. Sign In) → rose accent ── */
+[data-theme="2"] a.bg-black,
+[data-theme="2"] button.bg-black {
+  background-color: var(--color-accent) !important;
+  border-radius: 100px !important;
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--color-accent) 30%, transparent) !important;
+}
+[data-theme="2"] a.hover\:bg-\[\#333\]:hover,
+[data-theme="2"] button.hover\:bg-\[\#333\]:hover {
+  background-color: var(--color-accent-hover) !important;
+}
+
+/* ── Corner radius scale — much rounder than Theme 1 ── */
+[data-theme="2"] .rounded-sm   { border-radius: 10px !important; }
+[data-theme="2"] .rounded      { border-radius: 12px !important; }
+[data-theme="2"] .rounded-md   { border-radius: 12px !important; }
+[data-theme="2"] .rounded-lg   { border-radius: 16px !important; }
+[data-theme="2"] .rounded-xl   { border-radius: 20px !important; }
+[data-theme="2"] .rounded-2xl  { border-radius: 24px !important; }
+[data-theme="2"] .rounded-full { border-radius: 9999px !important; }
+
+/* ── Typography — Plus Jakarta Sans weight boost ── */
+[data-theme="2"] h1,[data-theme="2"] h2,
+[data-theme="2"] h3,[data-theme="2"] h4 {
+  font-family: var(--th-font);
+  letter-spacing: -0.02em;
+}
+[data-theme="2"] .font-semibold { font-weight: 700 !important; }
+
+/* ── Accent-coloured text ── */
+[data-theme="2"] .text-accent { color: var(--color-accent) !important; }
+[data-theme="2"] .hover\:text-accent-hover:hover { color: var(--color-accent-hover) !important; }
+
+/* ── Accent-tinted backgrounds ── */
+[data-theme="2"] .bg-accent\/5,
+[data-theme="2"] .bg-accent\/6,
+[data-theme="2"] .bg-accent\/8,
+[data-theme="2"] .bg-accent\/10,
+[data-theme="2"] .bg-accent\/12 {
+  background-color: color-mix(in oklch, var(--color-accent) 10%, white) !important;
+}
+
+/* ── Border-accent tints ── */
+[data-theme="2"] .border-accent\/15,
+[data-theme="2"] .border-accent\/20,
+[data-theme="2"] .border-accent\/25,
+[data-theme="2"] .border-accent\/30,
+[data-theme="2"] .border-accent\/40 {
+  border-color: color-mix(in oklch, var(--color-accent) 28%, transparent) !important;
+}
+
+/* ── Focus rings ── */
+[data-theme="2"] .focus\:ring-accent\/20:focus {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-accent) 18%, transparent) !important;
+}
+
+/* ── Nav hover state warmth ── */
+[data-theme="2"] .hover\:bg-\[#f5f5f7\]:hover,
+[data-theme="2"] .hover\:bg-surface:hover { background-color: var(--th-nav-hover-bg) !important; }
+
+/* ── Subtle warm overlay for modals/drawers ── */
+[data-theme="2"] .bg-black\/20 { background-color: rgba(26,19,12,0.35) !important; }
+
+/* ── Hero section — warm gradient replaces blue tint ── */
+[data-theme="2"] .th-hero-section {
+  background: linear-gradient(160deg, #FAF5EF 0%, #F6F1EB 60%, #F6F1EB 100%) !important;
+}
+[data-theme="2"] .th-hero-dots    { opacity: 0 !important; }
+[data-theme="2"] .th-hero-glow    { opacity: 0 !important; }
+[data-theme="2"] .th-section-warm {
+  background: linear-gradient(180deg, #FAF5EF 0%, #F6F1EB 100%) !important;
+}
+[data-theme="2"] .th-section-glow { opacity: 0 !important; }
+
+/* ── Hover backgrounds with blue tint → warm cream ── */
+[data-theme="2"] .hover\:bg-\[\#f8fbff\]:hover,
+[data-theme="2"] .hover\:bg-\[\#f9fafb\]:hover { background-color: #F0EAE2 !important; }
+
+/* ── Blue-tinted selected/active states (checkout, forms) ── */
+[data-theme="2"] .bg-\[\#eff6ff\]  { background-color: color-mix(in oklch, var(--color-accent) 8%, white) !important; }
+[data-theme="2"] .bg-blue-50       { background-color: color-mix(in oklch, var(--color-accent) 6%, white) !important; }
+[data-theme="2"] .border-blue-100  { border-color: color-mix(in oklch, var(--color-accent) 20%, transparent) !important; }
+[data-theme="2"] .text-blue-700    { color: var(--color-accent) !important; }
+
+/* ── Zinc colour overrides → warm stone equivalents ── */
+[data-theme="2"] .border-zinc-200,
+[data-theme="2"] .border-zinc-100  { border-color: #E2D9D0 !important; }
+[data-theme="2"] .hover\:border-zinc-300:hover { border-color: #D0C5BB !important; }
+[data-theme="2"] .text-zinc-400    { color: #9E8E84 !important; }
+[data-theme="2"] .bg-zinc-50,
+[data-theme="2"] .hover\:bg-zinc-50:hover { background-color: #F6F1EB !important; }
+[data-theme="2"] .bg-\[\#f9fafb\] { background-color: #FAF7F4 !important; }
+
+/* ── Light gray/cool page sections → warm tint ── */
+[data-theme="2"] .bg-\[\#f9fafb\],
+[data-theme="2"] .bg-gray-50       { background-color: #FAF7F4 !important; }
+
+/* ── group-hover:text-white — prevent text-accent !important from hiding white text on hover ── */
+[data-theme="2"] .group:hover .group-hover\:text-white { color: #ffffff !important; }
+[data-theme="2"] .hover\:text-white:hover { color: #ffffff !important; }
+
+/* ── Logo marquee animation ── */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Fade masks — use --th-card-bg so they match the logo strip bg in both themes */
+.th-logo-fade-l { background: linear-gradient(to right,  #ffffff, transparent) !important; }
+.th-logo-fade-r { background: linear-gradient(to left,   #ffffff, transparent) !important; }
+[data-theme="2"] .th-logo-fade-l { background: linear-gradient(to right,  #ffffff, transparent) !important; }
+[data-theme="2"] .th-logo-fade-r { background: linear-gradient(to left,   #ffffff, transparent) !important; }
+
+/* ── bg-[#f8faff] (Global Reach section, light blue) → warm stone in Theme 2 ── */
+[data-theme="2"] .bg-\[\#f8faff\] { background-color: var(--color-surface) !important; }
+
+/* ── CSM (Success Manager) card ── */
+.csm-card {
+  background: linear-gradient(160deg, #0051D5 0%, #003CA6 100%);
+}
+[data-theme="2"] .csm-card {
+  background: linear-gradient(160deg, var(--color-accent) 0%, var(--color-accent-hover) 100%) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Scrollbar
+   ───────────────────────────────────────────────────────────────────────── */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+[data-theme="2"] ::-webkit-scrollbar        { width: 5px; height: 5px; }
+[data-theme="2"] ::-webkit-scrollbar-track  { background: #F0E9E1; }
+[data-theme="2"] ::-webkit-scrollbar-thumb  { background: #C9BAB0; border-radius: 3px; }
+[data-theme="2"] ::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }

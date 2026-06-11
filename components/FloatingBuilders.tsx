@@ -51,6 +51,9 @@ export default function FloatingBuilders() {
   const [reqFs,    setReqFs]    = useState(false);
   const [stratFs,  setStratFs]  = useState(false);
 
+  // Temporarily hidden
+  return null;
+
   return (
     <>
       <style>{`

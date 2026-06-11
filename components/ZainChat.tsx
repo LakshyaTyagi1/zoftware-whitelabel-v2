@@ -215,7 +215,7 @@ export default function ZainChat() {
           style={{ maxHeight: minimised ? '56px' : '520px', transition: 'max-height 0.2s ease' }}>
 
           {/* Header */}
-          <div className="bg-[#007AFF] px-4 py-3 flex items-center justify-between shrink-0">
+          <div className="bg-accent px-4 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0">
                 <ZainBotIcon size={26} />
@@ -249,8 +249,8 @@ export default function ZainChat() {
                   <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${
                       msg.role === 'assistant'
-                        ? 'bg-[#f5f5f7] text-black rounded-tl-sm'
-                        : 'bg-[#007AFF] text-white rounded-tr-sm'
+                        ? 'bg-surface text-black rounded-tl-sm'
+                        : 'bg-accent text-white rounded-tr-sm'
                     }`}>
                       <p className="text-[13px] leading-[1.5] whitespace-pre-line">{renderText(msg.text)}</p>
                     </div>
@@ -258,9 +258,9 @@ export default function ZainChat() {
                 ))}
                 {showTyping && (
                   <div className="flex justify-start">
-                    <div className="bg-[#f5f5f7] rounded-2xl rounded-tl-sm px-4 py-2.5 flex items-center gap-1">
+                    <div className="bg-surface rounded-2xl rounded-tl-sm px-4 py-2.5 flex items-center gap-1">
                       {[0, 1, 2].map(i => (
-                        <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#86868b] animate-bounce"
+                        <div key={i} className="w-1.5 h-1.5 rounded-full bg-muted animate-bounce"
                           style={{ animationDelay: `${i * 150}ms` }} />
                       ))}
                     </div>
@@ -285,7 +285,7 @@ export default function ZainChat() {
                     <button
                       key={chip}
                       onClick={() => sendText(chip)}
-                      className="text-[11px] font-medium text-[#007AFF] border border-[#007AFF]/30 px-2.5 py-1 rounded-full hover:bg-[#007AFF]/8 transition-colors whitespace-nowrap"
+                      className="text-[11px] font-medium text-accent border border-accent/30 px-2.5 py-1 rounded-full hover:bg-accent/8 transition-colors whitespace-nowrap"
                     >
                       {chip}
                     </button>
@@ -306,13 +306,13 @@ export default function ZainChat() {
                   }}
                   disabled={isBusy}
                   placeholder="Ask Zain anything…"
-                  className="flex-1 bg-[#f5f5f7] border-0 rounded-xl px-3.5 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-[#007AFF]/20 placeholder-[#86868b] disabled:opacity-70"
+                  className="flex-1 bg-surface border-0 rounded-xl px-3.5 py-2.5 text-[13px] outline-none focus:ring-2 focus:ring-accent/20 placeholder-muted disabled:opacity-70"
                 />
                 <button
                   onClick={send}
                   disabled={isBusy || !input.trim()}
                   aria-label="Send message to Zain"
-                  className="w-9 h-9 rounded-full bg-[#007AFF] flex items-center justify-center text-white hover:bg-[#0051D5] transition-colors shrink-0 disabled:opacity-50 disabled:cursor-not-allowed">
+                  className="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-white hover:bg-accent-hover transition-colors shrink-0 disabled:opacity-50 disabled:cursor-not-allowed">
                   <Send size={14} strokeWidth={2} />
                 </button>
               </div>
