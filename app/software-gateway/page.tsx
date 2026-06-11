@@ -762,7 +762,7 @@ export default function SoftwareGatewayPage() {
             </div>
 
             {/* AI Productivity card replacing "Browse All Software" button */}
-            <div className="relative border border-black/8 rounded-sm p-5 bg-white overflow-hidden shrink-0 lg:w-[256px]">
+            <div className="relative border border-black/8 rounded-sm p-5 bg-white overflow-hidden shrink-0 lg:w-[340px]">
               <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full opacity-15 pointer-events-none"
                 style={{ background: 'radial-gradient(circle, #6366F1 0%, transparent 70%)' }} />
               <div className="flex items-center justify-between mb-3">
