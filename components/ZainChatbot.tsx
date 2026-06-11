@@ -1,23 +1,29 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Phone, Send, ArrowRight, ExternalLink, ChevronRight, Ticket, Minus } from 'lucide-react';
-import { gatewayProducts } from '@/data/gateway-products';
-import { createTicket } from '@/lib/zain-tickets';
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport, type UIMessage } from 'ai';
+import { Phone, Send, ArrowRight, ExternalLink, Minus } from 'lucide-react';
 import ZainVoiceCall from './ZainVoiceCall';
 
-type Message = {
-  role: 'assistant' | 'user';
-  text: string;
-  products?: typeof gatewayProducts;
-  toolLink?: { label: string; href: string; external?: boolean };
-  ticketId?: string;
+type ToolLink = {
+  label: string;
+  href: string;
+  external?: boolean;
 };
 
-const GREETING: Message = {
+type DisplayMessage = {
+  id: string;
+  role: 'assistant' | 'user';
+  text: string;
+  toolLink?: ToolLink;
+};
+
+const GREETING: DisplayMessage = {
+  id: 'greeting',
   role: 'assistant',
-  text: "Hi! I'm Zain, your Software Gateway assistant powered by AI. I can help you find the right software, build a strategy, or answer procurement questions.\n\nWhat are you looking for?",
+  text: "Hi! I'm **Zain**, your Software Gateway assistant powered by AI. I can help you find the right software, compare pricing, explore bundles, or build a tech strategy.\n\nWhat are you looking for?",
 };
 
 const QUICK_TOOLS = [
@@ -29,14 +35,83 @@ const QUICK_TOOLS = [
 
 const SUGGESTED = ['Find CRM', 'ERP options', 'HR software', 'Best for SME'];
 
-function searchProducts(query: string) {
-  const q = query.toLowerCase();
-  return gatewayProducts.filter(p =>
-    p.name.toLowerCase().includes(q) ||
-    p.vendor.toLowerCase().includes(q) ||
-    p.category.toLowerCase().includes(q) ||
-    p.tags.some(t => t.toLowerCase().includes(q))
-  ).slice(0, 4);
+function messageText(message: UIMessage) {
+  return message.parts
+    .map(part => (part.type === 'text' ? part.text : ''))
+    .join('')
+    .trim();
+}
+
+function hasText(message: UIMessage) {
+  return messageText(message).length > 0;
+}
+
+function latestAssistantHasText(messages: UIMessage[]) {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    if (messages[i].role === 'assistant') {
+      return hasText(messages[i]);
+    }
+  }
+
+  return false;
+}
+
+function friendlyErrorMessage(error?: Error) {
+  if (!error) return '';
+
+  try {
+    const parsed = JSON.parse(error.message) as { error?: string };
+    if (parsed.error) return parsed.error;
+  } catch {
+    // AI SDK errors can be either plain text or serialized JSON.
+  }
+
+  return error.message || 'Please try again.';
+}
+
+function safeLinkProps(href: string) {
+  if (href.startsWith('/') && !href.startsWith('//')) {
+    return { href, isExternal: false };
+  }
+
+  try {
+    const url = new URL(href);
+    if (url.protocol === 'http:' || url.protocol === 'https:') {
+      return { href: url.href, isExternal: true };
+    }
+  } catch {
+    return undefined;
+  }
+
+  return undefined;
+}
+
+function renderText(text: string) {
+  return text
+    .split(/(\*\*.*?\*\*|\[[^\]]+\]\([^)]+\))/g)
+    .filter(Boolean)
+    .map((part, i) => {
+      const link = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+      if (link) {
+        const linkProps = safeLinkProps(link[2]);
+        if (!linkProps) return <span key={i}>{link[1]}</span>;
+
+        return (
+          <a
+            key={i}
+            href={linkProps.href}
+            target={linkProps.isExternal ? '_blank' : undefined}
+            rel={linkProps.isExternal ? 'noopener noreferrer' : undefined}
+            className="font-semibold underline underline-offset-2"
+          >
+            {link[1]}
+          </a>
+        );
+      }
+
+      const bold = part.match(/^\*\*(.*?)\*\*$/);
+      return bold ? <strong key={i}>{bold[1]}</strong> : <span key={i}>{part}</span>;
+    });
 }
 
 // ── Typing indicator ──────────────────────────────────────────────────────────
@@ -57,13 +132,37 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
   const [open,    setOpen]    = useState(defaultOpen);
   const [calling, setCalling] = useState(false);
   const [input,   setInput]   = useState('');
-  const [loading, setLoading] = useState(false);
-  const [messages, setMsgs]   = useState<Message[]>([GREETING]);
+  const [localMessages, setLocalMessages] = useState<DisplayMessage[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const localMessageIdRef = useRef(0);
+  const transport = useMemo(() => new DefaultChatTransport({ api: '/api/chat' }), []);
+  const { messages, sendMessage, status, error } = useChat({
+    transport,
+    experimental_throttle: 80,
+  });
+  const isBusy = status === 'submitted' || status === 'streaming';
+  const showTyping = status === 'submitted' || (status === 'streaming' && !latestAssistantHasText(messages));
+  const errorMessage = friendlyErrorMessage(error);
+  const visibleMessages: DisplayMessage[] = [
+    GREETING,
+    ...localMessages,
+    ...messages.flatMap(message => {
+      if (message.role === 'system') return [];
+
+      const text = messageText(message);
+      if (!text) return [];
+
+      return [{
+        id: message.id,
+        role: message.role as 'assistant' | 'user',
+        text,
+      }];
+    }),
+  ];
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, loading]);
+  }, [messages, localMessages, status]);
 
   useEffect(() => {
     const onOpen = () => setOpen(true);
@@ -71,63 +170,26 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
     return () => window.removeEventListener('zain-open', onOpen);
   }, []);
 
-  const send = async (text: string) => {
-    if (!text.trim() || loading) return;
-    const userMsg: Message = { role: 'user', text };
-    const history = [...messages, userMsg];
-    setMsgs(history);
+  const send = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || isBusy) return;
+    void sendMessage({ text: trimmed });
     setInput('');
-    setLoading(true);
-
-    // Quick local product search to augment context
-    const localHits = searchProducts(text);
-
-    try {
-      const res = await fetch('/api/zain-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history.map(m => ({ role: m.role, text: m.text })) }),
-      });
-
-      const data = await res.json();
-
-      const reply: Message = {
-        role: 'assistant',
-        text: data.text,
-        toolLink: data.toolLink ?? undefined,
-      };
-
-      // Attach local product results if AI didn't provide a tool link and we found matches
-      if (!data.toolLink && localHits.length > 0 && !data.escalate) {
-        reply.products = localHits;
-      }
-
-      // Auto-create ticket if AI flags escalation
-      if (data.escalate) {
-        const ticket = createTicket(
-          `Chat inquiry: ${text.slice(0, 80)}`,
-          `User asked: "${text}"\n\nConversation started at ${new Date().toLocaleString()}`
-        );
-        reply.text = data.text;
-        reply.ticketId = ticket.id;
-      }
-
-      setMsgs(prev => [...prev, reply]);
-    } catch {
-      setMsgs(prev => [...prev, {
-        role: 'assistant',
-        text: "Sorry, I'm having trouble connecting. Let me raise a support ticket for you.",
-        ticketId: createTicket(`Chat inquiry: ${text.slice(0, 80)}`, `User asked: "${text}"`).id,
-      }]);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const quickAction = (tool: typeof QUICK_TOOLS[0]) => {
-    const reply: Message = { role: 'assistant', text: `Sure! Here's the link to ${tool.label}.`,
+    localMessageIdRef.current += 1;
+    const id = localMessageIdRef.current;
+    const reply: DisplayMessage = {
+      id: `quick-reply-${id}`,
+      role: 'assistant',
+      text: `Sure! Here's the link to ${tool.label}.`,
       toolLink: { label: `Launch ${tool.label}`, href: tool.href, external: tool.external } };
-    setMsgs(prev => [...prev, { role: 'user', text: tool.label }, reply]);
+    setLocalMessages(prev => [
+      ...prev,
+      { id: `quick-user-${id}`, role: 'user', text: tool.label },
+      reply,
+    ]);
   };
 
   return (
@@ -176,8 +238,8 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4" style={{ minHeight: 0 }}>
-          {messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+          {visibleMessages.map(msg => (
+            <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className="max-w-[90%]">
                 {msg.role === 'assistant' && (
                   <div className="flex items-center gap-1.5 mb-1.5">
@@ -188,35 +250,8 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
                 <div className={`px-4 py-3 rounded-2xl text-[13px] leading-relaxed whitespace-pre-line ${
                   msg.role === 'user' ? 'text-white rounded-br-sm' : 'bg-[#f4f4f6] text-[#1a1a1a] rounded-bl-sm'
                 }`} style={msg.role === 'user' ? { background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' } : {}}>
-                  {msg.text}
+                  {renderText(msg.text)}
                 </div>
-
-                {/* Ticket created badge */}
-                {msg.ticketId && (
-                  <div className="mt-2 flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-3 py-2.5">
-                    <Ticket size={13} className="text-orange-500 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-semibold text-orange-700">Support ticket created</p>
-                      <p className="text-[10px] text-orange-500">{msg.ticketId} · Deepa Rawat will follow up</p>
-                    </div>
-                  </div>
-                )}
-
-                {msg.products && (
-                  <div className="mt-2 space-y-1.5">
-                    {msg.products.map(p => (
-                      <Link key={p.id} href={`/software/product/${p.slug}`}
-                        className="flex items-center gap-3 bg-white border border-black/8 rounded-xl px-3.5 py-2.5 hover:border-accent/30 hover:bg-accent/4 transition-all group">
-                        <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center text-[10px] font-bold text-zinc-600 shrink-0">{p.logo}</div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[12px] font-semibold text-black leading-none group-hover:text-accent transition-colors">{p.name}</p>
-                          <p className="text-[10px] text-muted mt-0.5 truncate">{p.category}</p>
-                        </div>
-                        <ChevronRight size={12} className="text-muted group-hover:text-accent shrink-0 transition-colors" />
-                      </Link>
-                    ))}
-                  </div>
-                )}
                 {msg.toolLink && (
                   msg.toolLink.external ? (
                     <a href={msg.toolLink.href} target="_blank" rel="noopener noreferrer"
@@ -237,7 +272,7 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
           ))}
 
           {/* Typing indicator */}
-          {loading && (
+          {showTyping && (
             <div className="flex justify-start">
               <div className="max-w-[90%]">
                 <div className="flex items-center gap-1.5 mb-1.5">
@@ -249,8 +284,22 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
             </div>
           )}
 
+          {errorMessage && (
+            <div className="flex justify-start">
+              <div className="max-w-[90%]">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <img src="/zain-avatar.svg" alt="Zain" className="w-5 h-5 rounded-full" />
+                  <span className="text-[10px] font-semibold text-muted">Zain</span>
+                </div>
+                <div className="px-4 py-3 rounded-2xl rounded-bl-sm text-[12px] leading-relaxed bg-red-50 text-red-700 border border-red-100">
+                  Zain could not connect. {errorMessage}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Quick action grid after greeting */}
-          {messages.length === 1 && !loading && (
+          {visibleMessages.length === 1 && !isBusy && (
             <div className="grid grid-cols-2 gap-2 mt-1">
               {QUICK_TOOLS.map(t => (
                 <button key={t.label} onClick={() => quickAction(t)}
@@ -265,7 +314,7 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
         </div>
 
         {/* Suggested chips */}
-        {messages.length <= 3 && !loading && (
+        {visibleMessages.length <= 3 && !isBusy && (
           <div className="px-5 py-2 border-t border-black/6 flex gap-2 overflow-x-auto shrink-0" style={{ scrollbarWidth: 'none' }}>
             {SUGGESTED.map(q => (
               <button key={q} onClick={() => send(q)}
@@ -282,11 +331,11 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
           <input value={input} onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); } }}
             placeholder="Ask Zain anything about software…"
-            disabled={loading}
+            disabled={isBusy}
             className="flex-1 text-[13px] bg-[#f4f4f6] border border-black/8 rounded-xl px-3.5 py-2.5 outline-none focus:border-accent/30 focus:bg-white transition-all disabled:opacity-60" />
-          <button onClick={() => send(input)} disabled={!input.trim() || loading}
+          <button onClick={() => send(input)} disabled={!input.trim() || isBusy}
             className="w-9 h-9 rounded-xl flex items-center justify-center text-white disabled:opacity-40 shrink-0 transition-all"
-            style={{ background: input.trim() && !loading ? 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' : '#e5e5e5' }}>
+            style={{ background: input.trim() && !isBusy ? 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))' : '#e5e5e5' }}>
             <Send size={14} />
           </button>
         </div>
