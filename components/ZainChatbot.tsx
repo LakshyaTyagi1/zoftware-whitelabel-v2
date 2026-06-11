@@ -86,8 +86,24 @@ function safeLinkProps(href: string) {
   return undefined;
 }
 
-function renderText(text: string) {
+function normalizeChatText(text: string) {
   return text
+    .split('\n')
+    .map(line => {
+      const trimmed = line.trim();
+      if (/^-{3,}$/.test(trimmed)) return '';
+      if (/^#{1,6}\s+/.test(trimmed)) {
+        return trimmed.replace(/^#{1,6}\s+(?:\d+\.\s*)?/, '');
+      }
+      return line.replace(/^\s*[-*]\s+/, '- ');
+    })
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function renderText(text: string) {
+  return normalizeChatText(text)
     .split(/(\*\*.*?\*\*|\[[^\]]+\]\([^)]+\))/g)
     .filter(Boolean)
     .map((part, i) => {
