@@ -132,15 +132,9 @@ export default function SmartSearchPopup({ onClose }: { onClose: () => void }) {
   if (step === 1) return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto px-6 py-6">
-        <div className="flex items-start justify-between mb-1.5">
-          <h2 className="text-[22px] font-semibold text-black leading-tight">
-            What are you looking for?
-          </h2>
-          <button onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 transition-colors shrink-0 ml-3 -mt-0.5">
-            <X size={16} />
-          </button>
-        </div>
+        <h2 className="text-[22px] font-semibold text-black leading-tight mb-1.5">
+          What are you looking for?
+        </h2>
         <p className="text-[13px] text-muted mb-6 leading-[1.6]">
           Describe your needs and we'll match you with the right software from 50+ verified products.
         </p>
