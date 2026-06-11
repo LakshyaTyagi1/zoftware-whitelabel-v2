@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Phone, X, Send, ArrowRight, ExternalLink, ChevronRight, PhoneOff, Mic, Ticket, Minus } from 'lucide-react';
+import { Phone, Send, ArrowRight, ExternalLink, ChevronRight, Ticket, Minus } from 'lucide-react';
 import { gatewayProducts } from '@/data/gateway-products';
 import { createTicket } from '@/lib/zain-tickets';
+import ZainVoiceCall from './ZainVoiceCall';
 
 type Message = {
   role: 'assistant' | 'user';
@@ -36,103 +37,6 @@ function searchProducts(query: string) {
     p.category.toLowerCase().includes(q) ||
     p.tags.some(t => t.toLowerCase().includes(q))
   ).slice(0, 4);
-}
-
-// ── Browser-based voice caller ────────────────────────────────────────────────
-function BrowserCaller({ onClose }: { onClose: () => void }) {
-  const [callState, setCallState] = useState<'connecting' | 'active' | 'ended'>('connecting');
-  const [duration,  setDuration]  = useState(0);
-  const [bars,      setBars]      = useState<number[]>(Array(20).fill(4));
-  const [muted,     setMuted]     = useState(false);
-  const streamRef = useRef<MediaStream | null>(null);
-  const animRef   = useRef<number | null>(null);
-
-  const stopAll = useCallback(() => {
-    streamRef.current?.getTracks().forEach(t => t.stop());
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-  }, []);
-
-  useEffect(() => {
-    const simulate = () => {
-      setBars(Array(20).fill(0).map(() => Math.random() * 28 + 3));
-      animRef.current = requestAnimationFrame(simulate);
-    };
-    navigator.mediaDevices?.getUserMedia({ audio: true })
-      .then(stream => {
-        streamRef.current = stream;
-        const ctx = new AudioContext();
-        const src = ctx.createMediaStreamSource(stream);
-        const an  = ctx.createAnalyser();
-        an.fftSize = 64;
-        src.connect(an);
-        const data = new Uint8Array(an.frequencyBinCount);
-        const draw = () => {
-          an.getByteFrequencyData(data);
-          setBars(Array.from(data.slice(0, 20)).map(v => Math.max(3, (v / 255) * 34)));
-          animRef.current = requestAnimationFrame(draw);
-        };
-        animRef.current = requestAnimationFrame(draw);
-        setTimeout(() => setCallState('active'), 1800);
-      })
-      .catch(() => {
-        setTimeout(() => setCallState('active'), 1800);
-        animRef.current = requestAnimationFrame(simulate);
-      });
-    return stopAll;
-  }, [stopAll]);
-
-  useEffect(() => {
-    if (callState !== 'active') return;
-    const t = setInterval(() => setDuration(d => d + 1), 1000);
-    return () => clearInterval(t);
-  }, [callState]);
-
-  const fmt = (s: number) =>
-    `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
-  const hangUp = () => { stopAll(); setCallState('ended'); setTimeout(onClose, 1200); };
-  const ringColor = callState === 'active' ? '#34D399' : callState === 'connecting' ? '#FCD34D' : '#F87171';
-
-  return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/75 backdrop-blur-md p-4">
-      <div className="bg-[#0c0c1a] rounded-2xl px-8 py-10 w-full max-w-[300px] text-center shadow-2xl border border-white/8">
-        <div className="relative inline-flex items-center justify-center mb-5">
-          {callState !== 'ended' && (
-            <>
-              <div className="absolute w-20 h-20 rounded-full border-2 animate-ping"
-                style={{ borderColor: ringColor + '50' }} />
-              <div className="absolute w-26 h-26 rounded-full border animate-ping"
-                style={{ borderColor: ringColor + '25', animationDelay: '0.5s', width: '6.5rem', height: '6.5rem' }} />
-            </>
-          )}
-          <img src="/zain-avatar.svg" alt="Zain" className="w-16 h-16 rounded-full relative z-10" />
-        </div>
-        <p className="text-white font-semibold text-[16px] mb-1">Zain</p>
-        <p className="text-white/40 text-[12px] mb-6">
-          {callState === 'connecting' ? 'Connecting…' : callState === 'active' ? fmt(duration) : 'Call ended'}
-        </p>
-        {callState === 'active' && (
-          <div className="flex items-end justify-center gap-0.5 h-8 mb-6">
-            {bars.map((h, i) => (
-              <div key={i} className="w-1 rounded-full transition-all duration-75"
-                style={{ height: `${muted ? 3 : h}px`, backgroundColor: '#34D399', opacity: 0.7 + (i % 3) * 0.1 }} />
-            ))}
-          </div>
-        )}
-        <div className="flex items-center justify-center gap-5">
-          <button onClick={() => setMuted(m => !m)}
-            className="w-12 h-12 rounded-full flex items-center justify-center text-white transition-all hover:scale-105"
-            style={{ backgroundColor: muted ? '#DC2626' : 'rgba(255,255,255,0.12)' }}>
-            <Mic size={18} strokeWidth={2} />
-          </button>
-          <button onClick={hangUp}
-            className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-xl transition-all hover:scale-105"
-            style={{ backgroundColor: '#DC2626' }}>
-            <PhoneOff size={20} strokeWidth={2} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 // ── Typing indicator ──────────────────────────────────────────────────────────
@@ -187,7 +91,7 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
 
       const data = await res.json();
 
-      let reply: Message = {
+      const reply: Message = {
         role: 'assistant',
         text: data.text,
         toolLink: data.toolLink ?? undefined,
@@ -388,7 +292,7 @@ export default function ZainChatbot({ defaultOpen = false }: { defaultOpen?: boo
         </div>
       </div>
 
-      {calling && <BrowserCaller onClose={() => setCalling(false)} />}
+      {calling && <ZainVoiceCall onClose={() => setCalling(false)} />}
     </>
   );
 }
