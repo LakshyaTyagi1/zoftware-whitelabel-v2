@@ -209,11 +209,11 @@ export default function BundleDetailPage({ params }: { params: Promise<{ slug: s
                       {/* Expandable product info panel */}
                       {isExpanded && info && (
                         <div className="px-5 py-4 border-t"
-                          style={{ background: 'color-mix(in oklch, var(--color-accent) 6%, white)', borderColor: 'color-mix(in oklch, var(--color-accent) 15%, transparent)' }}>
+                          style={{ background: 'rgba(0, 122, 255, 0.06)', borderColor: 'rgba(0, 122, 255, 0.15)' }}>
                           {/* Use-case badge */}
                           <div className="flex items-center gap-2 mb-3">
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-sm"
-                              style={{ background: 'color-mix(in oklch, var(--color-accent) 12%, transparent)', color: 'var(--color-accent)' }}>
+                              style={{ background: 'rgba(0, 122, 255, 0.12)', color: 'var(--color-accent)' }}>
                               {info.usedFor}
                             </span>
                           </div>

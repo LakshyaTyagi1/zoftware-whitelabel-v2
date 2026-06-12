@@ -111,12 +111,12 @@ body {
 }
 .gw-nav-accent {
   color: var(--color-accent);
-  border-color: color-mix(in oklch, var(--color-accent) 28%, transparent);
+  border-color: rgba(0, 122, 255, 0.28);
   transition: color 0.15s, background-color 0.15s;
 }
 .gw-nav-accent:hover {
   color: var(--color-accent-hover);
-  background-color: color-mix(in oklch, var(--color-accent) 7%, transparent);
+  background-color: rgba(0, 122, 255, 0.07);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -169,7 +169,7 @@ body {
 [data-theme="2"] select:focus {
   background-color: #FFFFFF !important;
   border-color: var(--color-accent) !important;
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-accent) 15%, transparent) !important;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15) !important;
   outline: none;
 }
 [data-theme="2"] .focus\:bg-white:focus { background-color: #FFFFFF !important; }
@@ -180,11 +180,11 @@ body {
   border-radius: 100px !important;  /* pill */
   font-weight: 600 !important;
   letter-spacing: -0.01em !important;
-  box-shadow: 0 2px 8px color-mix(in oklch, var(--color-accent) 30%, transparent) !important;
+  box-shadow: 0 2px 8px rgba(219, 61, 94, 0.30) !important;
 }
 [data-theme="2"] .bg-accent:hover,
 [data-theme="2"] .hover\:bg-accent-hover:hover {
-  box-shadow: 0 4px 16px color-mix(in oklch, var(--color-accent) 40%, transparent) !important;
+  box-shadow: 0 4px 16px rgba(219, 61, 94, 0.40) !important;
   transform: translateY(-1px);
 }
 
@@ -193,7 +193,7 @@ body {
 [data-theme="2"] button.bg-black {
   background-color: var(--color-accent) !important;
   border-radius: 100px !important;
-  box-shadow: 0 2px 8px color-mix(in oklch, var(--color-accent) 30%, transparent) !important;
+  box-shadow: 0 2px 8px rgba(219, 61, 94, 0.30) !important;
 }
 [data-theme="2"] a.hover\:bg-\[\#333\]:hover,
 [data-theme="2"] button.hover\:bg-\[\#333\]:hover {
@@ -227,7 +227,7 @@ body {
 [data-theme="2"] .bg-accent\/8,
 [data-theme="2"] .bg-accent\/10,
 [data-theme="2"] .bg-accent\/12 {
-  background-color: color-mix(in oklch, var(--color-accent) 10%, white) !important;
+  background-color: rgba(219, 61, 94, 0.08) !important;
 }
 
 /* ── Border-accent tints ── */
@@ -236,12 +236,12 @@ body {
 [data-theme="2"] .border-accent\/25,
 [data-theme="2"] .border-accent\/30,
 [data-theme="2"] .border-accent\/40 {
-  border-color: color-mix(in oklch, var(--color-accent) 28%, transparent) !important;
+  border-color: rgba(219, 61, 94, 0.28) !important;
 }
 
 /* ── Focus rings ── */
 [data-theme="2"] .focus\:ring-accent\/20:focus {
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-accent) 18%, transparent) !important;
+  box-shadow: 0 0 0 3px rgba(219, 61, 94, 0.18) !important;
 }
 
 /* ── Nav hover state warmth ── */
@@ -267,9 +267,9 @@ body {
 [data-theme="2"] .hover\:bg-\[\#f9fafb\]:hover { background-color: #F0EAE2 !important; }
 
 /* ── Blue-tinted selected/active states (checkout, forms) ── */
-[data-theme="2"] .bg-\[\#eff6ff\]  { background-color: color-mix(in oklch, var(--color-accent) 8%, white) !important; }
-[data-theme="2"] .bg-blue-50       { background-color: color-mix(in oklch, var(--color-accent) 6%, white) !important; }
-[data-theme="2"] .border-blue-100  { border-color: color-mix(in oklch, var(--color-accent) 20%, transparent) !important; }
+[data-theme="2"] .bg-\[\#eff6ff\]  { background-color: rgba(219, 61, 94, 0.08) !important; }
+[data-theme="2"] .bg-blue-50       { background-color: rgba(219, 61, 94, 0.06) !important; }
+[data-theme="2"] .border-blue-100  { border-color: rgba(219, 61, 94, 0.20) !important; }
 [data-theme="2"] .text-blue-700    { color: var(--color-accent) !important; }
 
 /* ── Zinc colour overrides → warm stone equivalents ── */
